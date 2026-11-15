@@ -1,7 +1,7 @@
 {
   "name": "tamagotchi",
   "version": "1.0.0",
-  "description": "Tamagotchi (\u305f\u307e\u3054\u3063\u3061): a Japanese virtual pet game backed by SQLite Cloud",
+  "description": "Tamagotchi (たまごっち): a Japanese virtual pet game backed by SQLite Cloud",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -20,7 +20,8 @@
     "@sqlitecloud/drivers": "^1.0.982",
     "cookie-parser": "^1.4.7",
     "dotenv": "^18.0.10",
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "three": "^0.187.0"
   },
   "type": "module",
   "engines": {

@@ -113,6 +113,10 @@ app.get('/api/leaderboard', wrap(async (req, res) => {
 }));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
+app.use('/vendor/three', express.static(path.join(__dirname, '..', 'node_modules', 'three', 'build'), {
+  index: false,
+  setHeaders: (res) => res.set('Cache-Control', 'public, max-age=86400'),
+}));
 app.use(express.static(path.join(__dirname, '..', 'public'), { extensions: ['html'] }));
 
 app.use((err, req, res, next) => {

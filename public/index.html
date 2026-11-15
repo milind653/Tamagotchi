@@ -54,7 +54,7 @@
           <div id="demo-fx" class="fx"></div>
           <div class="screen-note" id="demo-note">Tap a button and say hello!</div>
         </div>
-        <div class="device-name">Momo</div>
+        <div class="device-name">Panda</div>
       </div>
       <div class="demo-buttons" role="group" aria-label="Try it out">
         <button type="button" data-demo="meal"><span>🍙</span>Feed</button>
@@ -62,7 +62,8 @@
         <button type="button" data-demo="cuddle"><span>🤗</span>Cuddle</button>
         <button type="button" data-demo="sleep"><span>💡</span>Lights</button>
       </div>
-      <p class="demo-hint">Try it. This is a preview, your real pet needs you!</p>
+      <div class="demo-picker" id="demo-picker" role="group" aria-label="Pick a pet to preview"></div>
+      <p class="demo-hint">Try it, tap your pet, move your mouse around. This is a preview, your real pet needs you!</p>
     </div>
   </header>
 
@@ -91,7 +92,7 @@
     </div>
     <ol class="steps">
       <li><span class="num">1</span><h3>Sign up</h3><p>Create a free account in seconds. Your pet is saved to your account, so you can come back on any device.</p></li>
-      <li><span class="num">2</span><h3>Choose an egg</h3><p>Pick a Mochi, Neko, Usagi or Tori, give it a name, and watch it wobble until it hatches.</p></li>
+      <li><span class="num">2</span><h3>Choose an egg</h3><p>Pick one of nine pets, from a cuddly 3D Panda to a squishy Mochi, give it a name, and watch it wobble until it hatches.</p></li>
       <li><span class="num">3</span><h3>Take care of it</h3><p>Watch the five meters: fullness, happiness, energy, cleanliness and health. Keep them topped up.</p></li>
       <li><span class="num">4</span><h3>Watch it grow</h3><p>Your pet changes as it ages. Good care unlocks the Angelic form. Neglect may make a Rascal.</p></li>
     </ol>
@@ -120,6 +121,7 @@
     <div class="center">
       <p class="eyebrow">Meet the pets</p>
       <h2>Which egg will you pick?</h2>
+      <p class="sub">Five brand-new <b>3D</b> pets with big sparkly eyes, plus four classic pixel-soft friends.</p>
     </div>
     <div class="species-row" id="species-row"></div>
   </section>

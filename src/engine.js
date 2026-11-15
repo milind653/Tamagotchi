@@ -12,6 +12,11 @@ export const SPECIES = {
   neko: { name: 'Neko', jp: 'ねこ', trait: 'A sleepy little kitten.' },
   usagi: { name: 'Usagi', jp: 'うさぎ', trait: 'A bouncy long-eared bunny.' },
   tori: { name: 'Tori', jp: 'とり', trait: 'A chirpy round chick.' },
+  panda: { name: 'Panda', jp: 'パンダ', trait: 'A cuddly 3D cub who adores hugs.', model3d: true },
+  kitsune: { name: 'Kitsune', jp: 'きつね', trait: 'A fluffy 3D fox kit with a big swishy tail.', model3d: true },
+  penguin: { name: 'Pen', jp: 'ペンギン', trait: 'A waddling 3D penguin chick with tiny flippers.', model3d: true },
+  hamster: { name: 'Hamu', jp: 'ハムスター', trait: 'A chubby 3D hamster hugging a sunflower seed.', model3d: true },
+  axolotl: { name: 'Uparupa', jp: 'ウーパー', trait: 'A smiling 3D axolotl with fluffy gills.', model3d: true },
 };
 
 export class GameError extends Error {

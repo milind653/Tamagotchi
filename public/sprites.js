@@ -3,6 +3,11 @@ const PALETTE = {
   neko: { body: '#ffbf80', shade: '#f29a4a', accent: '#fff3e0' },
   usagi: { body: '#d9ccff', shade: '#b4a0f5', accent: '#fff0f6' },
   tori: { body: '#ffe27a', shade: '#f5c63c', accent: '#ff9f43' },
+  panda: { body: '#fbfbfb', shade: '#4a4252', accent: '#c9c2d4' },
+  kitsune: { body: '#ffa45c', shade: '#e8782a', accent: '#fff3e3' },
+  penguin: { body: '#8a98c4', shade: '#3f4b73', accent: '#ffffff' },
+  hamster: { body: '#f6c58d', shade: '#dba064', accent: '#ffb4c2' },
+  axolotl: { body: '#ffc4d8', shade: '#ff8fb1', accent: '#ffe6f0' },
 };
 const INK = '#3b2f3f';
 const SCALE = { baby: 0.62, child: 0.78, teen: 0.9, adult: 1 };
