@@ -2,119 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Tamagotchi たまごっち</title>
+  <meta name="description" content="Hatch an egg, feed it, play with it and keep your virtual pet alive.">
+  <meta name="theme-color" content="#ffe8f0" id="theme-color">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icons/favicon-64.png" type="image/png" sizes="64x64">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tamagotchi">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
   <link rel="stylesheet" href="/style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='17' rx='11' ry='13' fill='%23ff8fb1'/%3E%3Ccircle cx='12' cy='15' r='2'/%3E%3Ccircle cx='20' cy='15' r='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/app.css">
 </head>
-<body>
-  <header class="top">
-    <h1><a class="home-link" href="/">Tamagotchi <span class="jp">たまごっち</span></a></h1>
-    <div id="userbar" hidden>
-      <span id="whoami"></span>
-      <button id="logout" class="link">Log out</button>
-    </div>
-  </header>
+<body class="app-body">
+  <div class="app" id="app">
+    <div id="offline-banner" class="offline-banner" role="status" hidden>You're offline. Your pet is waiting for you.</div>
 
-  <main id="app">
-    <section id="view-auth" class="card auth" hidden>
-      <div class="tabs">
-        <button id="tab-login" class="tab active" type="button">Log in</button>
-        <button id="tab-register" class="tab" type="button">Sign up</button>
+    <section id="view-splash" class="splash" aria-label="Loading">
+      <div class="splash-egg"><img src="/icons/icon-192.png" alt="" width="96" height="96"></div>
+      <p>Waking up your pet…</p>
+    </section>
+
+    <section id="view-auth" class="page auth" hidden>
+      <div class="auth-hero">
+        <img class="auth-logo" src="/icons/icon-192.png" alt="" width="88" height="88">
+        <h1>Tamagotchi <span class="jp">たまごっち</span></h1>
+        <p id="auth-tagline" class="tagline"></p>
       </div>
-      <form id="auth-form" autocomplete="on">
-        <label>Username
-          <input id="auth-user" name="username" autocomplete="username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+">
+      <div class="segmented" role="tablist" aria-label="Account">
+        <button id="tab-register" role="tab" type="button">Sign up</button>
+        <button id="tab-login" role="tab" type="button">Log in</button>
+      </div>
+      <form id="auth-form" novalidate>
+        <label class="field">
+          <span>Username</span>
+          <input id="auth-user" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" maxlength="20" aria-describedby="auth-user-hint">
+          <small id="auth-user-hint">3-20 letters, numbers or underscores</small>
         </label>
-        <label>Password
-          <input id="auth-pass" name="password" type="password" autocomplete="current-password" required minlength="6" maxlength="128">
+        <label class="field">
+          <span>Password</span>
+          <span class="input-wrap">
+            <input id="auth-pass" name="password" type="password" autocomplete="current-password" enterkeyhint="go" maxlength="128" class="has-adorn" aria-describedby="auth-pass-hint">
+            <button id="pass-toggle" class="adorn" type="button" aria-label="Show password" aria-pressed="false">👁️</button>
+          </span>
+          <small id="auth-pass-hint">At least 6 characters</small>
         </label>
         <p id="auth-error" class="error" role="alert"></p>
-        <button id="auth-submit" class="primary" type="submit">Log in</button>
+        <button id="auth-submit" class="btn-primary block" type="submit"></button>
       </form>
-      <p class="hint">Welcome! Sign up to receive your very own egg and keep it alive.</p>
+      <p class="auth-foot"><a href="/">← Back to home</a></p>
     </section>
 
-    <section id="view-adopt" class="card adopt" hidden>
-      <h2>Choose your egg <span class="jp">たまご</span></h2>
-      <p id="memorial-note" class="hint" hidden></p>
-      <div id="species-list" class="species-list"></div>
-      <form id="adopt-form">
-        <label>Name your pet
-          <input id="pet-name" maxlength="12" required placeholder="e.g. Mametchi">
+    <section id="view-adopt" class="page adopt" hidden>
+      <div class="adopt-head">
+        <h1>Choose your egg <span class="jp">たまご</span></h1>
+        <p id="memorial-note" class="memorial-note" hidden></p>
+        <p id="adopt-sub" class="tagline">Swipe to meet everyone, then name your new friend.</p>
+      </div>
+      <div class="carousel-wrap">
+        <button id="car-prev" class="car-arrow" type="button" aria-label="Previous pet">‹</button>
+        <div id="carousel" class="carousel" role="listbox" aria-label="Pets" tabindex="0"></div>
+        <button id="car-next" class="car-arrow" type="button" aria-label="Next pet">›</button>
+      </div>
+      <div id="dots" class="dots" aria-hidden="true"></div>
+      <form id="adopt-form" class="adopt-form" novalidate>
+        <label class="field">
+          <span>Name your pet</span>
+          <span class="input-wrap">
+            <input id="pet-name" maxlength="12" autocomplete="off" autocapitalize="words" enterkeyhint="done" placeholder="e.g. Momo" class="has-adorn">
+            <button id="dice" class="adorn" type="button" aria-label="Suggest a name">🎲</button>
+          </span>
         </label>
         <p id="adopt-error" class="error" role="alert"></p>
-        <button class="primary" type="submit">Adopt this egg</button>
+        <button id="adopt-submit" class="btn-primary block" type="submit">Adopt</button>
       </form>
     </section>
 
-    <section id="view-game" class="game" hidden>
-      <div class="device-col">
-        <div class="device">
-          <div class="screen" id="screen">
-            <div id="scene"></div>
-            <div id="fx"></div>
-            <div id="screen-note" class="screen-note"></div>
-          </div>
-          <div class="device-name" id="device-name"></div>
+    <section id="view-main" class="main" hidden>
+      <header class="appbar">
+        <div class="ab-title">
+          <b id="ab-name"></b>
+          <span id="ab-sub"></span>
         </div>
-        <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      </div>
+        <button id="ab-install" class="ab-install" type="button" hidden>Install</button>
+      </header>
 
-      <div class="panel-col">
-        <div class="card">
-          <div class="pet-head">
-            <div>
-              <h2 id="pet-title"></h2>
-              <p id="pet-sub" class="hint"></p>
+      <div class="panels">
+        <div id="panel-pet" class="panel active" role="tabpanel" aria-label="Your pet">
+          <div id="install-banner" class="banner" hidden>
+            <span class="banner-ico">📲</span>
+            <span class="banner-text"><b>Install the app</b><small>Quick access from your home screen</small></span>
+            <button id="banner-install" class="banner-btn" type="button">Install</button>
+            <button id="banner-close" class="banner-x" type="button" aria-label="Dismiss">×</button>
+          </div>
+
+          <div class="stage-card" id="stage-card">
+            <div class="scene day" id="scene">
+              <div class="ground"></div>
+              <div class="pet-wrap" id="pet-wrap"></div>
+              <div class="poops" id="poops"></div>
             </div>
-            <div id="pet-badges" class="badges"></div>
+            <button id="bubble" class="bubble" type="button" hidden></button>
+            <div id="fx" class="fx" aria-hidden="true"></div>
+            <div id="hatch" class="hatch" hidden>
+              <div class="hatch-bar"><i id="hatch-fill"></i></div>
+              <span id="hatch-text"></span>
+            </div>
+            <p id="stage-hint" class="stage-hint">Tap to cuddle</p>
           </div>
-          <div id="stats" class="stats"></div>
+
+          <div id="stats" class="stats" role="group" aria-label="Pet stats"></div>
+
+          <nav id="dock" class="dock" aria-label="Care actions">
+            <button data-act="feed" type="button"><span class="d-ico">🍙</span><span class="d-label">Feed</span></button>
+            <button data-act="play" type="button"><span class="d-ico">🎮</span><span class="d-label">Play</span></button>
+            <button data-act="wash" type="button"><span class="d-ico">🛁</span><span class="d-label">Wash</span></button>
+            <button data-act="medicine" type="button"><span class="d-ico">💊</span><span class="d-label">Heal</span></button>
+            <button data-act="light" type="button"><span class="d-ico" id="light-ico">💡</span><span class="d-label" id="light-label">Sleep</span></button>
+          </nav>
+          <div id="dead-cta" class="dead-cta" hidden>
+            <p id="dead-text"></p>
+            <button id="dead-adopt" class="btn-primary block" type="button">Adopt a new egg</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div id="actions" class="actions">
-            <button data-act="feed" data-kind="meal"><span class="ico">🍙</span><b>Meal</b><i>ごはん</i></button>
-            <button data-act="feed" data-kind="snack"><span class="ico">🍡</span><b>Snack</b><i>おやつ</i></button>
-            <button data-act="play"><span class="ico">🎮</span><b>Play</b><i>あそぶ</i></button>
-            <button data-act="cuddle"><span class="ico">🤗</span><b>Cuddle</b><i>なでる</i></button>
-            <button data-act="clean"><span class="ico">🧹</span><b>Clean</b><i>そうじ</i></button>
-            <button data-act="bath"><span class="ico">🛁</span><b>Bath</b><i>おふろ</i></button>
-            <button data-act="medicine"><span class="ico">💊</span><b>Medicine</b><i>くすり</i></button>
-            <button data-act="light"><span class="ico">💡</span><b id="light-label">Lights</b><i>でんき</i></button>
-          </div>
-          <div id="play-picker" class="play-picker" hidden>
-            <p>Which way will your pet look?</p>
-            <button data-guess="left" type="button">&larr; Left</button>
-            <button data-guess="right" type="button">Right &rarr;</button>
-            <button data-guess="cancel" type="button" class="link">Cancel</button>
-          </div>
+        <div id="panel-diary" class="panel" role="tabpanel" aria-label="Diary" hidden>
+          <h2 class="panel-title">Diary <span class="jp">にっき</span></h2>
+          <ol id="events" class="timeline"></ol>
         </div>
 
-        <div class="card">
-          <h3>Diary <span class="jp">にっき</span></h3>
-          <ul id="events" class="events"></ul>
+        <div id="panel-ranks" class="panel" role="tabpanel" aria-label="Rankings" hidden>
+          <h2 class="panel-title">Hall of fame <span class="jp">でんどう</span></h2>
+          <ol id="leaderboard" class="ranklist"></ol>
+          <h2 class="panel-title second">Your memorial <span class="jp">おはか</span></h2>
+          <ul id="memorial" class="ranklist plain"></ul>
+        </div>
+
+        <div id="panel-me" class="panel" role="tabpanel" aria-label="Account" hidden>
+          <div class="me-card">
+            <div id="me-avatar" class="me-avatar"></div>
+            <div>
+              <b id="me-name"></b>
+              <p id="me-sub" class="muted"></p>
+            </div>
+          </div>
+          <ul class="menu">
+            <li><button id="me-install" type="button"><span>📲</span><span class="m-text"><b>Install app</b><small id="me-install-sub">Add Tamagotchi to your home screen</small></span><span class="chev">›</span></button></li>
+            <li><button id="me-tips" type="button"><span>💡</span><span class="m-text"><b>How to care for your pet</b><small>Quick tips</small></span><span class="chev">›</span></button></li>
+            <li><a href="/"><span>🏠</span><span class="m-text"><b>About the game</b><small>Back to the home page</small></span><span class="chev">›</span></a></li>
+            <li><button id="me-logout" type="button"><span>👋</span><span class="m-text"><b>Log out</b><small>Your pet keeps living while you're away</small></span><span class="chev">›</span></button></li>
+          </ul>
         </div>
       </div>
+
+      <nav class="tabbar" role="tablist" aria-label="Sections">
+        <button role="tab" data-tab="pet" aria-selected="true" type="button"><span class="t-ico">🐣</span><span>Pet</span></button>
+        <button role="tab" data-tab="diary" aria-selected="false" type="button"><span class="t-ico">📖</span><span>Diary</span></button>
+        <button role="tab" data-tab="ranks" aria-selected="false" type="button"><span class="t-ico">🏆</span><span>Ranks</span></button>
+        <button role="tab" data-tab="me" aria-selected="false" type="button"><span class="t-ico">👤</span><span>Me</span></button>
+      </nav>
     </section>
 
-    <section id="view-boards" class="boards" hidden>
-      <div class="card">
-        <h3>Hall of fame <span class="jp">でんどう</span></h3>
-        <ol id="leaderboard" class="board"></ol>
-      </div>
-      <div class="card">
-        <h3>Your memorial <span class="jp">おはか</span></h3>
-        <ul id="memorial" class="board"></ul>
-      </div>
-    </section>
-  </main>
-
-  <footer>Care for your pet: feed it, play, keep it clean, and let it sleep.</footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
   <script type="module" src="/app.js"></script>
 </body>
 </html>

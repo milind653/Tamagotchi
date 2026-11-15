@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffe8f0">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tamagotchi">
   <title>Tamagotchi たまごっち | Raise your very own virtual pet</title>
   <meta name="description" content="Hatch an egg, feed it, play with it and keep it alive. A free online version of the classic Japanese virtual pet game.">
   <meta property="og:title" content="Tamagotchi たまごっち | Raise your very own virtual pet">
@@ -12,7 +18,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/landing.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='17' rx='11' ry='13' fill='%23ff8fb1'/%3E%3Ccircle cx='12' cy='15' r='2'/%3E%3Ccircle cx='20' cy='15' r='2'/%3E%3C/svg%3E">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icons/favicon-64.png" type="image/png" sizes="64x64">
 </head>
 <body class="landing">
   <div class="sky" aria-hidden="true" id="sky"></div>
@@ -24,6 +31,7 @@
       <a href="#how">How to play</a>
       <a href="#pets">Meet the pets</a>
       <a href="#faq">FAQ</a>
+      <button class="btn small ghost-btn" id="nav-install" type="button" hidden>Install</button>
       <a class="btn small" href="/play">Play now</a>
     </div>
   </nav>
@@ -36,6 +44,7 @@
       <div class="cta-row">
         <a class="btn big" href="/play">Get your egg <span aria-hidden="true">→</span></a>
         <a class="btn ghost big" href="#what">What is this?</a>
+        <button class="btn ghost big" id="hero-install" type="button" hidden>📲 Install app</button>
       </div>
       <ul class="trust">
         <li>Free to play</li>

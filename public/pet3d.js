@@ -619,8 +619,9 @@ export class PetStage {
   fit() {
     const c = this.container;
     if (!c) return;
-    const w = c.clientWidth || 256;
-    const h = c.clientHeight || 256;
+    const w = c.clientWidth;
+    const h = c.clientHeight;
+    if (!w || !h) return;
     this.setSize(w, h);
   }
 
@@ -793,7 +794,7 @@ export class PetStage {
       if (!this.running) return;
       const dt = (now - this.last) / 1000;
       this.last = now;
-      if (!document.hidden && this.canvas.isConnected) {
+      if (!document.hidden && this.canvas.isConnected && this.canvas.offsetParent !== null) {
         this.elapsed += Math.min(dt, 0.05);
         this.update(dt, this.elapsed);
       }

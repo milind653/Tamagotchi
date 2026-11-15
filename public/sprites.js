@@ -26,7 +26,7 @@ function eyes(mood, form) {
   let out = `<circle cx="${l}" cy="${y}" r="2.6" fill="${INK}"/><circle cx="${r}" cy="${y}" r="2.6" fill="${INK}"/>
     <circle cx="${l + 0.9}" cy="${y - 1}" r="0.9" fill="#fff"/><circle cx="${r + 0.9}" cy="${y - 1}" r="0.9" fill="#fff"/>`;
   if (mood === 'sad' || mood === 'hungry') {
-    out += `<path d="M${l - 4} ${y - 6} l7 2 M${r + 4} ${y - 6} l-7 2" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`;
+    out += `<path d="M${l - 4} ${y - 4} l7 -3 M${r + 4} ${y - 4} l-7 -3" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`;
     if (mood === 'sad') out += `<path d="M${l - 2} ${y + 4} q-1 4 0 5 q1 -1 0 -5z" fill="#6ec1ff"/>`;
   }
   if (form === 'rascal') {

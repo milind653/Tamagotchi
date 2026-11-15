@@ -1,4 +1,5 @@
 import { petSVG } from './sprites.js';
+import { install, installState, onInstallChange } from './pwa.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -195,3 +196,13 @@ function observe() {
   });
 }
 observe();
+
+// Install buttons appear only when the browser can install the app (or on iOS, where we show the steps).
+function updateInstall() {
+  const s = installState();
+  const show = s === 'prompt' || s === 'ios';
+  for (const id of ['nav-install', 'hero-install']) $(id).hidden = !show;
+}
+for (const id of ['nav-install', 'hero-install']) $(id).addEventListener('click', () => install());
+onInstallChange(updateInstall);
+updateInstall();
