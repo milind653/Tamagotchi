@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tamagotchi たまごっち</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='17' rx='11' ry='13' fill='%23ff8fb1'/%3E%3Ccircle cx='12' cy='15' r='2'/%3E%3Ccircle cx='20' cy='15' r='2'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="top">
+    <h1><a class="home-link" href="/">Tamagotchi <span class="jp">たまごっち</span></a></h1>
+    <div id="userbar" hidden>
+      <span id="whoami"></span>
+      <button id="logout" class="link">Log out</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <section id="view-auth" class="card auth" hidden>
+      <div class="tabs">
+        <button id="tab-login" class="tab active" type="button">Log in</button>
+        <button id="tab-register" class="tab" type="button">Sign up</button>
+      </div>
+      <form id="auth-form" autocomplete="on">
+        <label>Username
+          <input id="auth-user" name="username" autocomplete="username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+">
+        </label>
+        <label>Password
+          <input id="auth-pass" name="password" type="password" autocomplete="current-password" required minlength="6" maxlength="128">
+        </label>
+        <p id="auth-error" class="error" role="alert"></p>
+        <button id="auth-submit" class="primary" type="submit">Log in</button>
+      </form>
+      <p class="hint">Welcome! Sign up to receive your very own egg and keep it alive.</p>
+    </section>
+
+    <section id="view-adopt" class="card adopt" hidden>
+      <h2>Choose your egg <span class="jp">たまご</span></h2>
+      <p id="memorial-note" class="hint" hidden></p>
+      <div id="species-list" class="species-list"></div>
+      <form id="adopt-form">
+        <label>Name your pet
+          <input id="pet-name" maxlength="12" required placeholder="e.g. Mametchi">
+        </label>
+        <p id="adopt-error" class="error" role="alert"></p>
+        <button class="primary" type="submit">Adopt this egg</button>
+      </form>
+    </section>
+
+    <section id="view-game" class="game" hidden>
+      <div class="device-col">
+        <div class="device">
+          <div class="screen" id="screen">
+            <div id="scene"></div>
+            <div id="fx"></div>
+            <div id="screen-note" class="screen-note"></div>
+          </div>
+          <div class="device-name" id="device-name"></div>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="panel-col">
+        <div class="card">
+          <div class="pet-head">
+            <div>
+              <h2 id="pet-title"></h2>
+              <p id="pet-sub" class="hint"></p>
+            </div>
+            <div id="pet-badges" class="badges"></div>
+          </div>
+          <div id="stats" class="stats"></div>
+        </div>
+
+        <div class="card">
+          <div id="actions" class="actions">
+            <button data-act="feed" data-kind="meal"><span class="ico">🍙</span><b>Meal</b><i>ごはん</i></button>
+            <button data-act="feed" data-kind="snack"><span class="ico">🍡</span><b>Snack</b><i>おやつ</i></button>
+            <button data-act="play"><span class="ico">🎮</span><b>Play</b><i>あそぶ</i></button>
+            <button data-act="cuddle"><span class="ico">🤗</span><b>Cuddle</b><i>なでる</i></button>
+            <button data-act="clean"><span class="ico">🧹</span><b>Clean</b><i>そうじ</i></button>
+            <button data-act="bath"><span class="ico">🛁</span><b>Bath</b><i>おふろ</i></button>
+            <button data-act="medicine"><span class="ico">💊</span><b>Medicine</b><i>くすり</i></button>
+            <button data-act="light"><span class="ico">💡</span><b id="light-label">Lights</b><i>でんき</i></button>
+          </div>
+          <div id="play-picker" class="play-picker" hidden>
+            <p>Which way will your pet look?</p>
+            <button data-guess="left" type="button">&larr; Left</button>
+            <button data-guess="right" type="button">Right &rarr;</button>
+            <button data-guess="cancel" type="button" class="link">Cancel</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Diary <span class="jp">にっき</span></h3>
+          <ul id="events" class="events"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-boards" class="boards" hidden>
+      <div class="card">
+        <h3>Hall of fame <span class="jp">でんどう</span></h3>
+        <ol id="leaderboard" class="board"></ol>
+      </div>
+      <div class="card">
+        <h3>Your memorial <span class="jp">おはか</span></h3>
+        <ul id="memorial" class="board"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>Care for your pet: feed it, play, keep it clean, and let it sleep.</footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
