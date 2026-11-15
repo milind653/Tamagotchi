@@ -1,5 +1,20 @@
 import { petSVG, poopSVG } from './sprites.js';
 
+// three.js is loaded on demand; if it (or WebGL) is unavailable, 3D pets fall back to flat SVG art.
+let three = null;
+const threeReady = import('./pet3d.js')
+  .then((m) => { three = m.webglSupported() ? m : null; })
+  .catch(() => {});
+let stage3d = null;
+const is3d = (species) => !!three?.MODEL_SPECIES.has(species);
+function art(p) {
+  if (is3d(p.species)) {
+    const url = three.portrait(p);
+    if (url) return `<img class="portrait" alt="" src="${url}">`;
+  }
+  return petSVG(p);
+}
+
 const $ = (id) => document.getElementById(id);
 const views = ['auth', 'adopt', 'game'].map((n) => [n, $(`view-${n}`)]);
 
@@ -92,6 +107,7 @@ $('logout').onclick = async () => {
 
 // ---------- adopt ----------
 async function renderAdopt(lastPet) {
+  await threeReady;
   speciesCache ??= (await api('/species')).species;
   const list = $('species-list');
   list.replaceChildren();
@@ -102,7 +118,8 @@ async function renderAdopt(lastPet) {
       onclick: () => { selectedSpecies = key; renderAdopt(lastPet); },
     });
     const preview = { species: key, stage: 'adult', form: 'normal', alive: true, mood: 'happy', hatchesInMs: 0 };
-    card.append(el('div', { class: 'species-art', html: petSVG(preview) }));
+    card.append(el('div', { class: 'species-art', html: art(preview) }));
+    if (info.model3d) card.append(el('span', { class: 'new-badge' }, '3D'));
     card.append(el('b', {}, `${info.name} ${info.jp}`), el('small', {}, info.trait));
     list.append(card);
   }
@@ -169,7 +186,13 @@ function renderScene(p) {
   const scene = $('scene');
   const poops = Array.from({ length: p.poop }, (_, i) => `<span class="poop-slot s${i}">${poopSVG()}</span>`).join('');
   scene.className = `scene ${p.sleeping ? 'night' : 'day'}`;
-  scene.innerHTML = `<div class="ground"></div><div class="pet-wrap">${petSVG(p)}</div>${poops}`;
+  const use3d = is3d(p.species);
+  scene.innerHTML = `<div class="ground"></div><div class="pet-wrap ${use3d ? 'pet3d-wrap' : ''}">${use3d ? '' : petSVG(p)}</div>${poops}`;
+  if (use3d) {
+    stage3d ??= new three.PetStage({ live: true });
+    stage3d.setPet(p);
+    stage3d.mount(scene.querySelector('.pet-wrap'));
+  }
   const note = $('screen-note');
   if (!p.alive) note.textContent = `Rest in peace, ${p.name}`;
   else if (p.stage === 'egg') note.textContent = `Hatching in ${Math.ceil(p.hatchesInMs / 1000)}s...`;
@@ -306,6 +329,8 @@ async function act(action, body = {}) {
     const res = await api(`/pet/${action}`, { method: 'POST', body });
     renderPet(res.pet);
     const kind = action === 'feed' ? body.kind : action;
+    const reaction = { feed: 'eat', cuddle: 'love', play: 'play', clean: 'clean', bath: 'clean', medicine: 'heal' }[action];
+    if (reaction && stage3d && is3d(res.pet.species)) stage3d.react(res.extra?.won === false ? 'sad' : reaction);
     burst(res.extra?.won === false ? '💨' : FX[kind] ?? '✨');
     toast(res.message, res.extra?.won === false ? 'warn' : 'good');
     loadSide();
@@ -334,6 +359,7 @@ $('play-picker').addEventListener('click', (e) => {
 });
 
 async function boot() {
+  await threeReady;
   try {
     const me = await api('/me');
     $('whoami').textContent = me.user.username;

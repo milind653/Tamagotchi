@@ -135,3 +135,9 @@ ol.board li::before { counter-increment: rank; content: counter(rank) '.'; width
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
 .home-link { color: inherit; text-decoration: none; }
+
+.pet-wrap.pet3d-wrap { left: 0; right: 0; top: 0; bottom: -6%; }
+.pet3d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; }
+.portrait { width: 100%; height: 100%; object-fit: contain; display: block; }
+.species { position: relative; }
+.new-badge { position: absolute; top: 8px; right: 8px; padding: 1px 8px; border-radius: 999px; background: linear-gradient(90deg, #ff6f9c, #b36bff); color: #fff; font-size: .7rem; }

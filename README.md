@@ -45,4 +45,5 @@ If health reaches zero the pet passes away (starvation, illness or neglect) and 
 - `src/server.js` - Express API and static hosting.
 - `public/index.html`, `landing.css`, `landing.js` - the marketing landing page with a try-it-out demo.
 - `public/play.html`, `app.js`, `style.css` - the game itself, served at `/play`.
-- `public/sprites.js` - SVG pets drawn in code, shared by both pages.
+- `public/sprites.js` - flat SVG pets (Mochi, Neko, Usagi, Tori) drawn in code, shared by both pages.
+- `public/pet3d.js` - the 3D pets (Panda, Kitsune, Penguin, Hamster, Axolotl), built from plush-style three.js shapes with expressive faces. three.js is served from `node_modules` at `/vendor/three`; browsers without WebGL fall back to flat art.
