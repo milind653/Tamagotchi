@@ -7,7 +7,7 @@ A web version of the Japanese virtual pet game. Sign up, adopt an egg, and keep 
 ```bash
 npm install
 cp .env.example .env     # then put your SQLITECLOUD_URL in .env
-npm start                # http://localhost:3000
+npm start                # landing page at http://localhost:3000, game at /play
 npm test                 # game-rule unit tests (no database needed)
 ```
 
@@ -43,4 +43,6 @@ If health reaches zero the pet passes away (starvation, illness or neglect) and 
 - `src/auth.js` - scrypt password hashing and cookie sessions (stored hashed in the DB).
 - `src/pets.js` - persistence for pets, per-user locking, diary, leaderboard.
 - `src/server.js` - Express API and static hosting.
-- `public/` - the front end (vanilla JS, SVG pets drawn in code).
+- `public/index.html`, `landing.css`, `landing.js` - the marketing landing page with a try-it-out demo.
+- `public/play.html`, `app.js`, `style.css` - the game itself, served at `/play`.
+- `public/sprites.js` - SVG pets drawn in code, shared by both pages.
