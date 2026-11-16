@@ -59,4 +59,4 @@ If health reaches zero the pet passes away (starvation, illness or neglect) and 
 - `public/play.html`, `app.js`, `app.css`, `style.css`, `sheet.js` - the mobile-first game shell, served at `/play` (`sheet.js` is the bottom-sheet component).
 - `public/manifest.webmanifest`, `sw.js`, `offline.html`, `pwa.js`, `icons/` - PWA manifest, service worker (app shell cache; API calls are never cached), offline page, install handling and app icons.
 - `public/sprites.js` - flat SVG pets (Mochi, Neko, Usagi, Tori) drawn in code, shared by both pages.
-- `public/pet3d.js` - the 3D pets (Panda, Kitsune, Penguin, Hamster, Axolotl), built from plush-style three.js shapes with expressive faces. three.js is served from `node_modules` at `/vendor/three`; browsers without WebGL fall back to flat art.
+- `public/pet3d.js` - the 3D pets (Neko, Inu, Panda, Kitsune, Penguin, Hamster, Axolotl), built from plush-style three.js shapes with expressive faces. Drag to spin 360°, tap to show an emotion. three.js is served from `node_modules` at `/vendor/three`; browsers without WebGL fall back to flat art.

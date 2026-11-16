@@ -74,7 +74,7 @@ function demoFx(emoji) {
     setTimeout(() => s.remove(), 1600);
   }
 }
-const NAMES = { panda: 'Panda', kitsune: 'Kitsune', penguin: 'Pen', hamster: 'Hamu', axolotl: 'Uparupa', mochi: 'Mochi', neko: 'Neko', usagi: 'Usagi', tori: 'Tori' };
+const NAMES = { panda: 'Panda', kitsune: 'Kitsune', penguin: 'Pen', hamster: 'Hamu', axolotl: 'Uparupa', mochi: 'Mochi', neko: 'Neko', inu: 'Inu', usagi: 'Usagi', tori: 'Tori' };
 const REACTIONS = {
   meal: ['🍙', 'Yum! Oishii!', 'eat'],
   play: ['⭐', 'Wheee! So fun!', 'play'],
@@ -122,13 +122,14 @@ drawDemo();
 
 // Species cards
 const SPECIES = [
+  ['neko', 'Neko', 'ねこ', 'A cuddly 3D kitten with soft whiskers and pink paw pads. Drag to spin!', '#ffcf99', true],
+  ['inu', 'Inu', 'いぬ', 'A round 3D puppy with floppy ears and a wagging tail. Tap for emotion!', '#f0d0a8', true],
   ['panda', 'Panda', 'パンダ', 'A cuddly cub with the fluffiest ears. Loves hugs more than bamboo.', '#d8d2e4', true],
   ['kitsune', 'Kitsune', 'きつね', 'A fluffy fox kit with a big swishy tail and a heart of gold.', '#ffcf99', true],
   ['penguin', 'Pen', 'ペンギン', 'A waddling chick with tiny flippers and the biggest eyes.', '#c6d8ff', true],
   ['hamster', 'Hamu', 'ハムスター', 'A chubby hamster who never lets go of their favourite seed.', '#ffe0b8', true],
   ['axolotl', 'Uparupa', 'ウーパー', 'A forever-smiling axolotl with fluffy little gills.', '#ffc4d8', true],
   ['mochi', 'Mochi', 'もち', 'A squishy rice-cake blob with a little leaf on its head.', '#ffc9d9'],
-  ['neko', 'Neko', 'ねこ', 'A sleepy little kitten with whiskers and pointy ears.', '#ffcf99'],
   ['usagi', 'Usagi', 'うさぎ', 'A bouncy bunny with long, floppy ears.', '#d9ccff'],
   ['tori', 'Tori', 'とり', 'A chirpy round chick with a tiny beak.', '#ffe27a'],
 ];

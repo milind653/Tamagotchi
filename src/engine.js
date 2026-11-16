@@ -11,7 +11,8 @@ export const MAX_WEIGHT_FOR_SNACK = 30;
 
 export const SPECIES = {
   mochi: { name: 'Mochi', jp: 'もち', trait: 'A squishy rice-cake blob.' },
-  neko: { name: 'Neko', jp: 'ねこ', trait: 'A sleepy little kitten.' },
+  neko: { name: 'Neko', jp: 'ねこ', trait: 'A cuddly 3D kitten with soft whiskers and pink paw pads.', model3d: true },
+  inu: { name: 'Inu', jp: 'いぬ', trait: 'A round 3D puppy with floppy ears and a wagging tail.', model3d: true },
   usagi: { name: 'Usagi', jp: 'うさぎ', trait: 'A bouncy long-eared bunny.' },
   tori: { name: 'Tori', jp: 'とり', trait: 'A chirpy round chick.' },
   panda: { name: 'Panda', jp: 'パンダ', trait: 'A cuddly 3D cub who adores hugs.', model3d: true },

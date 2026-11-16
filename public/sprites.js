@@ -1,6 +1,7 @@
 const PALETTE = {
   mochi: { body: '#fff1f5', shade: '#ffc9d9', accent: '#ff8fb1' },
   neko: { body: '#ffbf80', shade: '#f29a4a', accent: '#fff3e0' },
+  inu: { body: '#f0d0a8', shade: '#c99562', accent: '#ffe8d2' },
   usagi: { body: '#d9ccff', shade: '#b4a0f5', accent: '#fff0f6' },
   tori: { body: '#ffe27a', shade: '#f5c63c', accent: '#ff9f43' },
   panda: { body: '#fbfbfb', shade: '#4a4252', accent: '#c9c2d4' },
@@ -85,6 +86,12 @@ function extras(species, c) {
       return `<path d="M15 24 L17 9 L28 17z M49 24 L47 9 L36 17z" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" stroke-linejoin="round"/>
         <path d="M18 20 L19 13 L24 17z M46 20 L45 13 L40 17z" fill="#ffb3c6"/>
         <path d="M14 42 h-8 M14 45 l-7 3 M50 42 h8 M50 45 l7 3" stroke="${INK}" stroke-width="1" stroke-linecap="round"/>`;
+    case 'inu':
+      return `<ellipse cx="18" cy="18" rx="7" ry="10" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" transform="rotate(-18 18 18)"/>
+        <ellipse cx="46" cy="18" rx="7" ry="10" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" transform="rotate(18 46 18)"/>
+        <ellipse cx="18" cy="20" rx="3.5" ry="6" fill="#ffb3c6" transform="rotate(-18 18 20)"/>
+        <ellipse cx="46" cy="20" rx="3.5" ry="6" fill="#ffb3c6" transform="rotate(18 46 20)"/>
+        <ellipse cx="32" cy="52" rx="5" ry="3" fill="${c.shade}" opacity=".5"/>`;
     case 'usagi':
       return `<ellipse cx="22" cy="11" rx="5" ry="13" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5"/>
         <ellipse cx="42" cy="11" rx="5" ry="13" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" transform="rotate(8 42 11)"/>

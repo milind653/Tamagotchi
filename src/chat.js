@@ -4,6 +4,7 @@
 const SPECIES_VOICE = {
   mochi: { soft: true, sound: 'pyon', quirks: ['*squish*', '*wobble*'] },
   neko: { soft: true, sound: 'nya', quirks: ['*purr*', '*kneads paws*'] },
+  inu: { soft: true, sound: 'wan', quirks: ['*wags tail*', '*happy pant*'] },
   usagi: { soft: true, sound: 'pyon', quirks: ['*hop*', '*twitches ears*'] },
   tori: { soft: false, sound: 'piyo', quirks: ['*flap*', '*chirp*'] },
   panda: { soft: true, sound: 'munch', quirks: ['*rolls over*', '*hugs bamboo*'] },
