@@ -122,8 +122,8 @@ drawDemo();
 
 // Species cards
 const SPECIES = [
-  ['neko', 'Neko', 'ねこ', 'A cuddly 3D kitten with soft whiskers and pink paw pads. Drag to spin!', '#ffcf99', true],
-  ['inu', 'Inu', 'いぬ', 'A round 3D puppy with floppy ears and a wagging tail. Tap for emotion!', '#f0d0a8', true],
+  ['neko', 'Neko', 'ねこ', 'A cuddly 3D kitten with soft whiskers and pink paw pads.', '#ffcf99', true],
+  ['inu', 'Inu', 'いぬ', 'A round 3D puppy with floppy ears and a wagging tail.', '#f0d0a8', true],
   ['panda', 'Panda', 'パンダ', 'A cuddly cub with the fluffiest ears. Loves hugs more than bamboo.', '#d8d2e4', true],
   ['kitsune', 'Kitsune', 'きつね', 'A fluffy fox kit with a big swishy tail and a heart of gold.', '#ffcf99', true],
   ['penguin', 'Pen', 'ペンギン', 'A waddling chick with tiny flippers and the biggest eyes.', '#c6d8ff', true],

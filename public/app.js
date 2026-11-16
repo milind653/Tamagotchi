@@ -21,7 +21,7 @@ function art(p) {
 }
 const portraitOf = (species, extra = {}) => art({ species, stage: 'adult', form: 'normal', alive: true, mood: 'happy', hatchesInMs: 60000, ...extra });
 
-const state = { user: null, pet: null, view: 'splash', tab: 'pet', busy: false, mode: 'register', species: null, pick: 0, hatchEndsAt: 0, lastCuddle: 0, flashMood: null, flashUntil: 0, chat: [] };
+const state = { user: null, pet: null, view: 'splash', tab: 'pet', busy: false, mode: 'register', species: null, pick: 0, hatchEndsAt: 0, lastCuddle: 0, flashMood: null, flashUntil: 0 };
 let pollTimer = null;
 let hatchTimer = null;
 let flashTimer = null;
@@ -309,21 +309,21 @@ function thought(p) {
   if (p.sick) return { text: "I don't feel well… 💊", act: 'medicine' };
   if (p.needs.includes('hungry')) return { text: "I'm so hungry! 🍙", act: 'feed' };
   if (p.poop > 0) return { text: 'It’s messy in here! 🧹', act: 'wash' };
-  if (p.needs.includes('lonely')) return { text: 'Talk to me? 💬', act: 'chat' };
+  if (p.needs.includes('lonely')) return { text: 'Play with me? 🎮', act: 'play' };
   if (p.needs.includes('tired')) return { text: "So sleepy… 💡", act: 'light' };
-  if (p.mood === 'bored') return { text: 'I’m a little bored… chat?', act: 'chat' };
-  if (p.mood === 'excited') return { text: 'I’m so excited!! 🤩', act: 'chat' };
-  if (p.mood === 'shy') return { text: 'H-hi… 😳', act: 'chat' };
+  if (p.mood === 'bored') return { text: 'I’m a little bored…', act: 'play' };
+  if (p.mood === 'excited') return { text: 'I’m so excited!! 🤩' };
+  if (p.mood === 'shy') return { text: 'H-hi… 😳' };
   if (p.mood === 'grumpy') return { text: 'Hmph. Clean this up!', act: 'wash' };
   const byMood = {
     love: ['I love you! 💗', 'Stay close…', 'You’re my favourite.'],
     happy: ['Today is a good day!', 'Hehe, hi there!', 'Can I have a hug?'],
     proud: ['Did you see that? I’m amazing!', 'Tell me I’m clever again.'],
-    curious: ['What are you thinking?', 'Tell me a secret?'],
+    curious: ['What are you thinking?', 'Hello! 👋'],
     okay: ['Hello! 👋', 'What shall we do?', 'La la la…', 'I’m doing okay.'],
   };
   const list = byMood[p.mood] ?? byMood.okay;
-  return { text: list[Math.floor(Date.now() / 60000) % list.length], act: 'chat' };
+  return { text: list[Math.floor(Date.now() / 60000) % list.length] };
 }
 
 function reason(action, p) {
@@ -376,8 +376,8 @@ function renderScene(p) {
   $('poops').innerHTML = Array.from({ length: p.poop }, () => `<span class="poop-slot">${poopSVG()}</span>`).join('');
   $('stage-hint').textContent = !p.alive || p.stage === 'egg' ? ''
     : p.sleeping ? 'Sleeping…'
-    : is3d(p.species) ? 'Drag to spin · Tap for emotion'
-    : 'Tap to cuddle · Talk below';
+    : is3d(p.species) ? 'Drag to turn · Tap for emotion'
+    : 'Tap to cuddle';
   setTheme(p.sleeping ? THEME.night : THEME.light);
 }
 
@@ -413,11 +413,6 @@ function renderDock(p) {
   if (p.needs.includes('lonely')) attn.add('play');
   if (p.needs.includes('tired')) attn.add('light');
   dock.hidden = !p.alive;
-  $('talk-btn').hidden = !p.alive;
-  if (p.alive) {
-    const label = p.stage === 'egg' ? 'Whisper to the egg' : `Talk with ${p.name}`;
-    $('talk-btn').querySelector('.talk-text b').textContent = label;
-  }
   $('dead-cta').hidden = p.alive;
   for (const btn of dock.querySelectorAll('button')) {
     const act = btn.dataset.act;
@@ -544,7 +539,6 @@ function openWelcome() {
   const box = el('div', {},
     el('ul', { class: 'tip-list' },
       el('li', {}, el('b', {}, 'Tap your pet'), ' to cuddle it.'),
-      el('li', {}, el('b', {}, 'Talk with your pet.'), ' Say hello, tell a joke, or say you love them — they answer in their own voice.'),
       el('li', {}, el('b', {}, 'Keep the bars green.'), ' They drop over time, even while you are away.'),
       el('li', {}, el('b', {}, 'Watch the speech bubble.'), ' Your pet tells you what it needs. Tap it to help.'),
       el('li', {}, el('b', {}, 'Lights off'), ' when it is sleepy so it can recharge.')),
@@ -552,93 +546,6 @@ function openWelcome() {
   openSheet({ title: 'Caring for your pet', jp: 'お世話', content: box });
 }
 
-const QUICK_CHATS = [
-  'I love you!',
-  'How are you?',
-  'Want to play?',
-  'You are so cute',
-  'Tell me a joke',
-  'Good night',
-];
-
-function openChat(p) {
-  const log = el('div', { class: 'chat-log', role: 'log', 'aria-live': 'polite', 'aria-relevant': 'additions' });
-  const quick = el('div', { class: 'chat-quick' });
-  for (const q of QUICK_CHATS) {
-    quick.append(el('button', { type: 'button', onclick: () => sendChat(q) }, q));
-  }
-  const input = el('input', {
-    type: 'text', maxlength: '140', placeholder: `Say something to ${p.name}…`,
-    enterkeyhint: 'send', autocomplete: 'off', autocorrect: 'on', 'data-autofocus': '',
-    'aria-label': `Message to ${p.name}`,
-  });
-  const sendBtn = el('button', { class: 'send', type: 'button', 'aria-label': 'Send' }, '➤');
-  const compose = el('div', { class: 'chat-compose' }, input, sendBtn);
-  const box = el('div', { class: 'chat-sheet' }, log, quick, compose);
-
-  function paintHistory() {
-    log.replaceChildren();
-    if (!state.chat.length) {
-      log.append(el('div', { class: 'chat-row pet' },
-        el('div', { class: 'chat-bubble' }, p.stage === 'egg'
-          ? 'The egg is quiet… but listening.'
-          : p.sleeping
-            ? `${p.name} is dreaming. Soft words still reach them.`
-            : `Hi! I’m ${p.name}. Talk to me — I get lonely sometimes.`),
-        el('span', { class: 'chat-meta' }, 'just now')));
-    }
-    for (const m of state.chat.slice(-12)) {
-      log.append(
-        el('div', { class: `chat-row ${m.who}` },
-          el('div', { class: 'chat-bubble' }, m.text),
-          el('span', { class: 'chat-meta' }, m.who === 'pet' && m.emotion ? `${EMOTION_FALLBACK[m.emotion]?.emoji ?? ''} ${m.emotion}` : '')));
-    }
-    log.scrollTop = log.scrollHeight;
-  }
-
-  async function sendChat(text) {
-    const clean = String(text ?? input.value).trim();
-    if (!clean || state.busy) return;
-    input.value = '';
-    state.chat.push({ who: 'you', text: clean });
-    paintHistory();
-    const typing = el('div', { class: 'chat-row pet typing' }, el('div', { class: 'chat-bubble' }, `${p.name} is thinking…`));
-    log.append(typing);
-    log.scrollTop = log.scrollHeight;
-    state.busy = true;
-    sendBtn.disabled = true;
-    try {
-      const res = await api('/pet/chat', { method: 'POST', body: { text: clean } });
-      typing.remove();
-      state.pet = res.pet;
-      const emotion = res.extra?.emotion;
-      state.chat.push({ who: 'pet', text: res.extra?.reply ?? res.message, emotion });
-      paintHistory();
-      flashEmotion(emotion);
-      renderPet(res.pet);
-      const react = emotion === 'sad' ? 'sad' : emotion === 'shy' ? 'shy' : emotion === 'proud' ? 'proud' : emotion === 'excited' ? 'excited' : emotion === 'love' ? 'love' : 'chat';
-      if (stage3d && is3d(res.pet.species)) stage3d.react(react);
-      else burst(EMOTION_FALLBACK[emotion]?.emoji ?? '💬');
-      buzz(14);
-      if (state.tab === 'diary') loadDiary();
-    } catch (err) {
-      typing.remove();
-      toast(err.message, 'warn');
-      if (err.status === 401) { closeSheet(); setMode('login'); setView('auth'); }
-    } finally {
-      state.busy = false;
-      sendBtn.disabled = false;
-      input.focus();
-    }
-  }
-
-  sendBtn.addEventListener('click', () => sendChat());
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); sendChat(); }
-  });
-  paintHistory();
-  openSheet({ title: `Chat with ${p.name}`, jp: 'おはなし', content: box });
-}
 
 $('dock').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-act]');
@@ -660,13 +567,9 @@ $('bubble').addEventListener('click', () => {
   if (a === 'feed') act('feed', { kind: 'meal' });
   else if (a === 'wash') act('clean');
   else if (a === 'play') openPlay(p);
-  else if (a === 'chat') openChat(p);
   else act(a);
 });
 
-$('talk-btn').addEventListener('click', () => {
-  if (state.pet) openChat(state.pet);
-});
 
 $('stage-card').addEventListener('pointerdown', (e) => {
   const p = state.pet;

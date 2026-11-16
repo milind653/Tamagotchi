@@ -1,8 +1,6 @@
 // Pure game simulation. No I/O: every function takes a pet row and returns changes,
 // so the rules can be unit-tested without a database.
 
-import { chatWithPet } from './chat.js';
-
 export const MINUTE = 60_000;
 export const EGG_MS = MINUTE; // egg hatches after one minute
 export const PET_DAY_MS = 60 * MINUTE; // one "pet day" is one real hour
@@ -281,14 +279,6 @@ export const actions = {
     return { pet: p, message: `Lights off. Oyasumi, ${p.name}.`, log: `Put ${p.name} to bed.` };
   },
 
-  chat(input, { text } = {}) {
-    const p = { ...input };
-    if (typeof text !== 'string') throw new GameError('Say something to your pet.');
-    const clean = text.trim().replace(/\s+/g, ' ');
-    if (clean.length < 1) throw new GameError('Say something to your pet.');
-    if (clean.length > 140) throw new GameError('Keep it under 140 characters.');
-    return chatWithPet(p, clean);
-  },
 };
 
 export function needs(p) {
