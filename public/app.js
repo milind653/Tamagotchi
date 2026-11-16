@@ -355,7 +355,16 @@ function renderScene(p) {
   if (use3d) {
     stage3d ??= new three.PetStage({ live: true });
     stage3d.setPet(p);
-    if (!wrap.contains(stage3d.canvas)) { wrap.replaceChildren(); stage3d.mount(wrap); }
+    if (!wrap.contains(stage3d.canvas)) {
+      wrap.replaceChildren();
+      stage3d.mount(wrap);
+      stage3d.canvas.addEventListener('pet-touch', (e) => {
+        const emotion = e.detail?.emotion;
+        if (!emotion || !state.pet) return;
+        flashEmotion(emotion);
+        renderPet(state.pet);
+      });
+    }
     sceneKey = '3d:' + p.mood;
   } else {
     const key = [p.species, p.stage, p.form, p.mood, p.alive].join('|');
@@ -365,7 +374,10 @@ function renderScene(p) {
     }
   }
   $('poops').innerHTML = Array.from({ length: p.poop }, () => `<span class="poop-slot">${poopSVG()}</span>`).join('');
-  $('stage-hint').textContent = !p.alive || p.stage === 'egg' ? '' : p.sleeping ? 'Sleeping…' : 'Tap to cuddle · Talk below';
+  $('stage-hint').textContent = !p.alive || p.stage === 'egg' ? ''
+    : p.sleeping ? 'Sleeping…'
+    : is3d(p.species) ? 'Drag to spin · Tap for emotion'
+    : 'Tap to cuddle · Talk below';
   setTheme(p.sleeping ? THEME.night : THEME.light);
 }
 

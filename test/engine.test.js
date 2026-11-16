@@ -134,10 +134,10 @@ test('stages and evolution form', () => {
 
 test('every species has a display name and Japanese name', async () => {
   const { SPECIES } = await import('../src/engine.js');
-  assert.ok(Object.keys(SPECIES).length >= 9);
+  assert.ok(Object.keys(SPECIES).length >= 10);
   for (const [key, info] of Object.entries(SPECIES)) {
     assert.ok(info.name && info.jp && info.trait, key);
     assert.doesNotThrow(() => newPet({ name: 'Momo', species: key, now: T0 }));
   }
-  for (const key of ['panda', 'kitsune', 'penguin', 'hamster', 'axolotl']) assert.equal(SPECIES[key].model3d, true);
+  for (const key of ['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu']) assert.equal(SPECIES[key].model3d, true);
 });

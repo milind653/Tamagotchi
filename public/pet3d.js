@@ -1,6 +1,6 @@
 import * as THREE from '/vendor/three/three.module.js';
 
-export const MODEL_SPECIES = new Set(['panda', 'kitsune', 'penguin', 'hamster', 'axolotl']);
+export const MODEL_SPECIES = new Set(['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu']);
 
 let webglOk = null;
 export function webglSupported() {
@@ -28,6 +28,8 @@ const EGG_COLORS = {
   penguin: ['#cfe3ff', '#5a6a96', '#ffffff'],
   hamster: ['#ffe2b8', '#e9a766', '#ffb3c1'],
   axolotl: ['#ffd3e2', '#ff7fa8', '#fff0f6'],
+  neko: ['#ffd7b0', '#f29a4a', '#fff3e0'],
+  inu: ['#f5dfc0', '#c99562', '#ffe8d2'],
 };
 
 function plush(color, opts = {}) {
@@ -449,7 +451,130 @@ function axolotl() {
   return { root, head, ears, tail, arms, face, spec, headY: 1.2, bodyG };
 }
 
-const BUILDERS = { panda, kitsune, penguin, hamster, axolotl };
+function neko() {
+  const orange = plush('#ffb56e');
+  const cream = plush('#fff4e8');
+  const pink = plush('#ffb3c6');
+  const ink = plush('#2f2836');
+  const root = new THREE.Group();
+  const bodyG = new THREE.Group();
+  root.add(bodyG);
+  at(ell(0.58, 0.54, 0.52, orange), 0, 0.56, 0, bodyG);
+  at(ell(0.36, 0.34, 0.22, cream), 0, 0.5, 0.34, bodyG);
+  const arms = [];
+  for (const s of [-1, 1]) {
+    const arm = new THREE.Group();
+    at(ell(0.14, 0.28, 0.14, orange), 0, -0.16, 0, arm);
+    at(ell(0.15, 0.1, 0.15, pink), 0, -0.38, 0.02, arm);
+    at(arm, s * 0.56, 0.72, 0.12, bodyG);
+    arm.rotation.z = s * 0.28;
+    arm.userData.side = s;
+    arms.push(arm);
+    at(ell(0.2, 0.12, 0.28, pink), s * 0.3, 0.14, 0.2, bodyG);
+  }
+  const tail = new THREE.Group();
+  at(ell(0.12, 0.12, 0.55, orange), 0, 0.1, -0.25, tail);
+  at(ell(0.11, 0.11, 0.16, cream), 0, 0.1, -0.72, tail);
+  at(tail, 0, 0.45, -0.45, root);
+  tail.rotation.x = -0.4;
+
+  const spec = { rx: 0.82, ry: 0.7, rz: 0.72, eyeX: 0.34, eyeY: 0.04, eyeR: 0.12, mouthY: -0.3, mouthW: 0.09, blushX: 0.56, blushY: -0.18, blushR: 0.1 };
+  const head = new THREE.Group();
+  head.position.y = 1.28;
+  root.add(head);
+  head.add(ell(spec.rx, spec.ry, spec.rz, orange));
+  const ears = [];
+  for (const s of [-1, 1]) {
+    const ear = new THREE.Group();
+    const outer = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.48, 20), orange);
+    outer.scale.z = 0.45;
+    at(outer, 0, 0.2, 0, ear);
+    const inner = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.32, 16), pink);
+    inner.scale.z = 0.4;
+    at(inner, 0, 0.14, 0.06, ear);
+    at(ear, s * 0.48, 0.52, -0.05, head);
+    ear.rotation.z = -s * 0.28;
+    ear.userData = { side: s, base: -s * 0.28 };
+    ears.push(ear);
+  }
+  const muzzle = ell(0.22, 0.16, 0.04, cream, 22);
+  onSurface(muzzle, spec, 0, -0.22, -0.02);
+  head.add(muzzle);
+  const face = buildFace(head, spec);
+  const nose = ell(0.045, 0.035, 0.04, pink, 14);
+  onSurface(nose, spec, 0, -0.12, 0.03);
+  head.add(nose);
+  for (const s of [-1, 1]) {
+    for (const k of [0, 1]) {
+      const w = new THREE.Mesh(new THREE.CapsuleGeometry(0.012, 0.28, 3, 6), ink);
+      w.rotation.z = s * (0.15 + k * 0.22);
+      onSurface(w, spec, s * 0.42, -0.18 - k * 0.05, 0.01);
+      head.add(w);
+    }
+  }
+  return { root, head, ears, tail, arms, face, spec, headY: 1.28, bodyG };
+}
+
+function inu() {
+  const cream = plush('#f3d2a6');
+  const caramel = plush('#c48a52');
+  const belly = plush('#fff6ea');
+  const pink = plush('#ffb4c2');
+  const noseMat = plush('#2c2430');
+  const root = new THREE.Group();
+  const bodyG = new THREE.Group();
+  root.add(bodyG);
+  at(ell(0.66, 0.58, 0.6, cream), 0, 0.58, 0, bodyG);
+  at(ell(0.42, 0.38, 0.26, belly), 0, 0.5, 0.38, bodyG);
+  at(ell(0.24, 0.2, 0.2, caramel), 0.32, 0.78, -0.18, bodyG);
+  at(ell(0.18, 0.16, 0.16, caramel), -0.4, 0.4, -0.15, bodyG);
+  const arms = [];
+  for (const s of [-1, 1]) {
+    const arm = new THREE.Group();
+    at(ell(0.16, 0.32, 0.16, cream), 0, -0.18, 0, arm);
+    at(ell(0.17, 0.11, 0.17, pink), 0, -0.42, 0.02, arm);
+    at(arm, s * 0.62, 0.76, 0.12, bodyG);
+    arm.rotation.z = s * 0.32;
+    arm.userData.side = s;
+    arms.push(arm);
+    at(ell(0.24, 0.14, 0.32, cream), s * 0.34, 0.15, 0.2, bodyG);
+  }
+  const tail = new THREE.Group();
+  at(ell(0.18, 0.18, 0.48, cream), 0, 0.2, -0.12, tail);
+  at(ell(0.16, 0.16, 0.2, caramel), 0, 0.24, -0.52, tail);
+  at(tail, 0, 0.55, -0.52, root);
+  tail.rotation.x = -0.85;
+
+  const spec = { rx: 0.88, ry: 0.74, rz: 0.78, eyeX: 0.34, eyeY: 0.04, eyeR: 0.13, mouthY: -0.34, mouthW: 0.11, blushX: 0.6, blushY: -0.18, blushR: 0.12 };
+  const head = new THREE.Group();
+  head.position.y = 1.32;
+  root.add(head);
+  head.add(ell(spec.rx, spec.ry, spec.rz, cream));
+  const snout = ell(0.34, 0.24, 0.3, belly, 26);
+  onSurface(snout, spec, 0, -0.26, 0.04);
+  head.add(snout);
+  const ears = [];
+  for (const s of [-1, 1]) {
+    const ear = new THREE.Group();
+    at(ell(0.26, 0.48, 0.12, cream), 0, -0.18, 0, ear);
+    at(ell(0.16, 0.3, 0.08, pink), 0, -0.2, 0.05, ear);
+    at(ear, s * 0.62, 0.62, -0.02, head);
+    ear.rotation.z = s * 0.95;
+    ear.rotation.x = 0.55;
+    ear.userData = { side: s, base: s * 0.95 };
+    ears.push(ear);
+  }
+  const face = buildFace(head, spec);
+  const nose = ell(0.1, 0.08, 0.08, noseMat, 16);
+  onSurface(nose, spec, 0, -0.16, 0.12);
+  head.add(nose);
+  const tongue = ell(0.07, 0.05, 0.04, plush('#ff7b9c'), 12);
+  onSurface(tongue, spec, 0, -0.38, 0.06);
+  head.add(tongue);
+  return { root, head, ears, tail, arms, face, spec, headY: 1.32, bodyG };
+}
+
+const BUILDERS = { panda, kitsune, penguin, hamster, axolotl, neko, inu };
 
 // ---------------------------------------------------------------- accessories
 
@@ -585,24 +710,53 @@ export class PetStage {
     this.textures = {};
     this.state = { species: null, stage: 'baby', form: null, mood: 'happy', alive: true, hatchesInMs: 60000 };
     this.look = { x: 0, y: 0, tx: 0, ty: 0 };
+    this.spinY = 0;
+    this.drag = { active: false, startX: 0, lastX: 0, moved: false, resumeAt: 0 };
     this.react_ = null;
     this.blink = { next: 2, t: -1 };
     this.elapsed = 0;
     this.last = 0;
+    this.touchIdx = 0;
     this.setSize(size, size);
     this.running = false;
-    this.onPointer = (e) => {
+    this.onPointerMove = (e) => {
       const r = this.canvas.getBoundingClientRect();
       if (!r.width) return;
-      const dx = (e.clientX - (r.left + r.width / 2)) / Math.max(300, window.innerWidth * 0.4);
-      const dy = (e.clientY - (r.top + r.height * 0.4)) / Math.max(300, window.innerHeight * 0.4);
-      this.look.tx = Math.max(-1, Math.min(1, dx));
-      this.look.ty = Math.max(-1, Math.min(1, dy));
+      if (this.drag.active) {
+        const dx = e.clientX - this.drag.lastX;
+        if (Math.abs(e.clientX - this.drag.startX) > 10) this.drag.moved = true;
+        if (this.drag.moved) {
+          this.spinY += dx * 0.012;
+          this.drag.resumeAt = performance.now() + 2800;
+        }
+        this.drag.lastX = e.clientX;
+      }
+      if (!this.drag.moved) {
+        const lx = (e.clientX - (r.left + r.width / 2)) / Math.max(300, window.innerWidth * 0.4);
+        const ly = (e.clientY - (r.top + r.height * 0.4)) / Math.max(300, window.innerHeight * 0.4);
+        this.look.tx = Math.max(-1, Math.min(1, lx));
+        this.look.ty = Math.max(-1, Math.min(1, ly));
+      }
+    };
+    this.onPointerDown = (e) => {
+      this.drag = { active: true, startX: e.clientX, lastX: e.clientX, moved: false, resumeAt: this.drag.resumeAt };
+      try { this.canvas.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+    };
+    this.onPointerUp = (e) => {
+      if (!this.drag.active) return;
+      const wasTap = !this.drag.moved;
+      this.drag.active = false;
+      this.drag.moved = false;
+      try { this.canvas.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+      if (wasTap) this.touchEmotion();
     };
     if (live) {
-      window.addEventListener('pointermove', this.onPointer, { passive: true });
-      this.canvas.addEventListener('pointerdown', () => this.react('love'));
-      this.canvas.style.cursor = 'pointer';
+      window.addEventListener('pointermove', this.onPointerMove, { passive: true });
+      this.canvas.addEventListener('pointerdown', this.onPointerDown);
+      this.canvas.addEventListener('pointerup', this.onPointerUp);
+      this.canvas.addEventListener('pointercancel', this.onPointerUp);
+      this.canvas.style.cursor = 'grab';
+      this.canvas.style.touchAction = 'none';
       this.ro = new ResizeObserver(() => this.fit());
     }
   }
@@ -777,6 +931,27 @@ export class PetStage {
     for (const [k, mesh] of Object.entries(mm)) mesh.visible = k === show;
   }
 
+  touchEmotion() {
+    if (!this.current || this.current.isEgg || !this.state.alive) {
+      this.burst('✨', 3);
+      this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion: 'curious' } }));
+      return;
+    }
+    if (this.state.mood === 'sleeping') {
+      this.burst('💤', 2);
+      this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion: 'sleepy' } }));
+      return;
+    }
+    const cycle = ['love', 'excited', 'shy', 'happy', 'proud', 'curious'];
+    const type = cycle[this.touchIdx++ % cycle.length];
+    const moodMap = { love: 'love', excited: 'excited', shy: 'shy', happy: 'happy', proud: 'proud', curious: 'curious' };
+    const emotion = moodMap[type] ?? 'happy';
+    this.state.mood = emotion;
+    this.applyStaticLook();
+    this.react(type === 'happy' ? 'love' : type === 'curious' ? 'chat' : type);
+    this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion } }));
+  }
+
   react(type) {
     this.react_ = { type, t: 0 };
     if (type === 'love') this.burst('💗', 5);
@@ -828,7 +1003,10 @@ export class PetStage {
 
   dispose() {
     this.stop();
-    window.removeEventListener('pointermove', this.onPointer);
+    window.removeEventListener('pointermove', this.onPointerMove);
+    this.canvas.removeEventListener('pointerdown', this.onPointerDown);
+    this.canvas.removeEventListener('pointerup', this.onPointerUp);
+    this.canvas.removeEventListener('pointercancel', this.onPointerUp);
     this.ro?.disconnect();
     this.renderer.dispose();
     this.renderer.forceContextLoss();
@@ -848,11 +1026,14 @@ export class PetStage {
       }
     }
 
+    const autoSpin = !this.drag.active && performance.now() >= (this.drag.resumeAt || 0);
+    if (autoSpin) this.spinY += dt * 0.45;
+
     if (cur.isEgg) {
       const hatching = this.state.hatchesInMs < 15000;
       const mesh = cur.egg.mesh;
       mesh.rotation.z = Math.sin(t * (hatching ? 22 : 2.2)) * (hatching ? 0.16 : 0.08);
-      mesh.rotation.y = hatching ? 0 : Math.sin(t * 0.7) * 0.25;
+      mesh.rotation.y = hatching ? this.spinY * 0.2 : this.spinY;
       mesh.position.y = 1.05 + (hatching ? Math.abs(Math.sin(t * 11)) * 0.05 : Math.sin(t * 2) * 0.02);
       this.pivot.position.y = 0;
       this.pivot.scale.set(1, 1, 1);
@@ -871,14 +1052,14 @@ export class PetStage {
 
     let jump = 0;
     let squash = 0;
-    if (r && (r.type === 'love' || r.type === 'play' || r.type === 'clean' || r.type === 'heal')) {
+    let playSpin = 0;
+    if (r && (r.type === 'love' || r.type === 'play' || r.type === 'clean' || r.type === 'heal' || r.type === 'excited' || r.type === 'shy' || r.type === 'proud' || r.type === 'chat')) {
       const ph = Math.min(1, r.t / 0.7);
-      jump = Math.sin(ph * Math.PI) * (r.type === 'play' ? 0.75 : 0.45);
+      jump = Math.sin(ph * Math.PI) * (r.type === 'play' || r.type === 'excited' ? 0.75 : 0.45);
       squash = ph < 0.12 ? ph / 0.12 * 0.12 : 0;
-      if (r.type === 'play') m.root.rotation.y = ph * Math.PI * 2;
-    } else if (!r) {
-      m.root.rotation.y *= 0.9;
+      if (r.type === 'play' || r.type === 'excited') playSpin = ph * Math.PI * 2;
     }
+    m.root.rotation.y = this.spinY + playSpin;
     if (mood === 'happy' && !r) {
       const hop = (t % 2.8) / 2.8;
       if (hop < 0.22) jump = Math.sin((hop / 0.22) * Math.PI) * 0.22;
