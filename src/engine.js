@@ -1,6 +1,8 @@
 // Pure game simulation. No I/O: every function takes a pet row and returns changes,
 // so the rules can be unit-tested without a database.
 
+import { chatWithPet } from './chat.js';
+
 export const MINUTE = 60_000;
 export const EGG_MS = MINUTE; // egg hatches after one minute
 export const PET_DAY_MS = 60 * MINUTE; // one "pet day" is one real hour
@@ -277,6 +279,15 @@ export const actions = {
     p.sleeping = 1;
     return { pet: p, message: `Lights off. Oyasumi, ${p.name}.`, log: `Put ${p.name} to bed.` };
   },
+
+  chat(input, { text } = {}) {
+    const p = { ...input };
+    if (typeof text !== 'string') throw new GameError('Say something to your pet.');
+    const clean = text.trim().replace(/\s+/g, ' ');
+    if (clean.length < 1) throw new GameError('Say something to your pet.');
+    if (clean.length > 140) throw new GameError('Keep it under 140 characters.');
+    return chatWithPet(p, clean);
+  },
 };
 
 export function needs(p) {
@@ -291,14 +302,41 @@ export function needs(p) {
   return list;
 }
 
+export const EMOTIONS = {
+  dead: { label: 'Gone', emoji: '👻' },
+  egg: { label: 'Waiting', emoji: '🥚' },
+  sleeping: { label: 'Sleepy', emoji: '💤' },
+  sick: { label: 'Sick', emoji: '🤒' },
+  hungry: { label: 'Hungry', emoji: '🥺' },
+  tired: { label: 'Tired', emoji: '🥱' },
+  sad: { label: 'Sad', emoji: '😢' },
+  lonely: { label: 'Lonely', emoji: '💭' },
+  grumpy: { label: 'Grumpy', emoji: '😤' },
+  bored: { label: 'Bored', emoji: '😐' },
+  shy: { label: 'Shy', emoji: '😳' },
+  curious: { label: 'Curious', emoji: '🤔' },
+  excited: { label: 'Excited', emoji: '🤩' },
+  proud: { label: 'Proud', emoji: '😌' },
+  love: { label: 'Loved', emoji: '💗' },
+  happy: { label: 'Happy', emoji: '😊' },
+  okay: { label: 'Calm', emoji: '🙂' },
+  sleepy: { label: 'Drowsy', emoji: '😴' },
+};
+
 export function mood(p) {
   if (!p.alive) return 'dead';
   if (p.stage === 'egg') return 'egg';
   if (p.sleeping) return 'sleeping';
   if (p.sick) return 'sick';
   if (p.hunger < 20) return 'hungry';
-  if (p.happiness < 25) return 'sad';
-  if (p.happiness > 75 && p.hunger > 50) return 'happy';
+  if (p.energy < 18) return 'tired';
+  if (p.happiness < 20) return 'sad';
+  if (p.happiness < 32) return 'lonely';
+  if (p.poop >= 2 || (p.poop > 0 && p.hygiene < 40)) return 'grumpy';
+  if (p.happiness > 88 && p.energy > 65 && p.hunger > 45) return 'excited';
+  if (p.happiness > 78 && p.hunger > 50) return 'happy';
+  if (p.happiness < 48 && p.energy > 40 && p.hunger > 40) return 'bored';
+  if (p.stage === 'baby' && p.happiness > 55) return 'shy';
   return 'okay';
 }
 
@@ -328,6 +366,7 @@ export function toView(p, now) {
     ageMs,
     hatchesInMs: p.stage === 'egg' ? Math.max(0, p.born_at + EGG_MS - now) : 0,
     mood: mood(p),
+    emotion: EMOTIONS[mood(p)] ?? EMOTIONS.okay,
     needs: needs(p),
     careMistakes: p.mistakes,
     gamesPlayed: p.games_played,

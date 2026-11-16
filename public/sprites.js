@@ -12,24 +12,47 @@ const PALETTE = {
 const INK = '#3b2f3f';
 const SCALE = { baby: 0.62, child: 0.78, teen: 0.9, adult: 1 };
 
+const SADISH = new Set(['sad', 'lonely', 'hungry', 'tired']);
+const WORRIED = new Set(['sad', 'lonely', 'hungry', 'tired', 'sick', 'grumpy']);
+const JOYFUL = new Set(['happy', 'excited', 'love', 'proud']);
+
 function eyes(mood, form) {
   const l = 25, r = 39, y = 36;
-  if (mood === 'sleeping') {
+  if (mood === 'sleeping' || mood === 'sleepy') {
     return `<path d="M${l - 3} ${y} q3 3 6 0 M${r - 3} ${y} q3 3 6 0" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
   }
   if (mood === 'sick') {
     return `<path d="M${l - 3} ${y - 3} l6 6 m0 -6 l-6 6 M${r - 3} ${y - 3} l6 6 m0 -6 l-6 6" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
   }
-  if (mood === 'happy') {
+  if (mood === 'love' || mood === 'excited') {
+    return `<path d="M${l} ${y} l2.8 -3.2 l2.8 3.2 l-2.8 3.2z M${r} ${y} l2.8 -3.2 l2.8 3.2 l-2.8 3.2z" fill="#ff5c8a"/>`;
+  }
+  if (mood === 'happy' || mood === 'proud') {
     return `<path d="M${l - 3} ${y + 2} q3 -5 6 0 M${r - 3} ${y + 2} q3 -5 6 0" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
   }
+  if (mood === 'shy') {
+    return `<circle cx="${l}" cy="${y + 1}" r="2.2" fill="${INK}"/><circle cx="${r}" cy="${y + 1}" r="2.2" fill="${INK}"/>
+      <path d="M${l - 4} ${y - 5} q4 2 8 0 M${r - 4} ${y - 5} q4 2 8 0" stroke="${INK}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  }
+  if (mood === 'curious') {
+    return `<circle cx="${l}" cy="${y}" r="3.1" fill="${INK}"/><circle cx="${r}" cy="${y}" r="2.2" fill="${INK}"/>
+      <circle cx="${l + 1}" cy="${y - 1.1}" r="1" fill="#fff"/><circle cx="${r + 0.7}" cy="${y - 0.8}" r="0.7" fill="#fff"/>`;
+  }
+  if (mood === 'bored') {
+    return `<path d="M${l - 3} ${y} h6 M${r - 3} ${y} h6" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/>`;
+  }
+  if (mood === 'grumpy') {
+    return `<circle cx="${l}" cy="${y}" r="2.6" fill="${INK}"/><circle cx="${r}" cy="${y}" r="2.6" fill="${INK}"/>
+      <path d="M${l - 4} ${y - 6} l7 3 M${r + 4} ${y - 6} l-7 3" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+  }
+
   let out = `<circle cx="${l}" cy="${y}" r="2.6" fill="${INK}"/><circle cx="${r}" cy="${y}" r="2.6" fill="${INK}"/>
     <circle cx="${l + 0.9}" cy="${y - 1}" r="0.9" fill="#fff"/><circle cx="${r + 0.9}" cy="${y - 1}" r="0.9" fill="#fff"/>`;
-  if (mood === 'sad' || mood === 'hungry') {
+  if (SADISH.has(mood)) {
     out += `<path d="M${l - 4} ${y - 4} l7 -3 M${r + 4} ${y - 4} l-7 -3" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`;
-    if (mood === 'sad') out += `<path d="M${l - 2} ${y + 4} q-1 4 0 5 q1 -1 0 -5z" fill="#6ec1ff"/>`;
+    if (mood === 'sad' || mood === 'lonely') out += `<path d="M${l - 2} ${y + 4} q-1 4 0 5 q1 -1 0 -5z" fill="#6ec1ff"/>`;
   }
-  if (form === 'rascal') {
+  if (form === 'rascal' && !WORRIED.has(mood)) {
     out += `<path d="M${l - 4} ${y - 7} l7 3 M${r + 4} ${y - 7} l-7 3" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
   }
   return out;
@@ -37,11 +60,22 @@ function eyes(mood, form) {
 
 function mouth(mood, form) {
   const y = 44;
-  if (mood === 'sleeping') return `<path d="M30 ${y} q2 1.5 4 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  if (mood === 'sleeping' || mood === 'sleepy') return `<path d="M30 ${y} q2 1.5 4 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
   if (mood === 'hungry') return `<ellipse cx="32" cy="${y + 1}" rx="3" ry="3.6" fill="${INK}"><animate attributeName="ry" values="3.6;2;3.6" dur="1s" repeatCount="indefinite"/></ellipse>`;
-  if (mood === 'sad' || mood === 'sick') return `<path d="M28 ${y + 3} q4 -4 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+  if (mood === 'sad' || mood === 'lonely' || mood === 'sick' || mood === 'tired') {
+    return `<path d="M28 ${y + 3} q4 -4 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+  }
+  if (mood === 'grumpy') return `<path d="M27 ${y + 2} h10" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`;
+  if (mood === 'bored') return `<path d="M29 ${y + 1} h6" stroke="${INK}" stroke-width="1.8" stroke-linecap="round"/>`;
+  if (mood === 'shy') return `<path d="M29 ${y} q3 2 6 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  if (mood === 'curious') return `<ellipse cx="32" cy="${y + 1}" rx="2.2" ry="2.6" fill="${INK}"/>`;
+  if (mood === 'excited' || mood === 'love') {
+    return `<path d="M26 ${y - 1} q6 9 12 0z" fill="${INK}"/><path d="M29 ${y + 2.5} q3 2.2 6 0" fill="#ff7b9c"/>`;
+  }
+  if (mood === 'proud' || mood === 'happy') {
+    return `<path d="M27 ${y - 1} q5 7 10 0z" fill="${INK}"/><path d="M29.5 ${y + 2} q2.5 2 5 0" fill="#ff7b9c"/>`;
+  }
   if (form === 'rascal') return `<path d="M27 ${y + 1} l2.5 -2 l2.5 2 l2.5 -2 l2.5 2 l2.5 -2" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linejoin="round"/>`;
-  if (mood === 'happy') return `<path d="M27 ${y - 1} q5 7 10 0z" fill="${INK}"/><path d="M29.5 ${y + 2} q2.5 2 5 0" fill="#ff7b9c"/>`;
   return `<path d="M28 ${y} q4 3.5 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
 }
 
@@ -85,6 +119,14 @@ function ghost(pet) {
   </g>`;
 }
 
+function animFor(mood) {
+  if (mood === 'sleeping' || mood === 'sleepy') return 'breathe';
+  if (mood === 'excited' || mood === 'love') return 'bounce';
+  if (mood === 'happy' || mood === 'proud') return 'bounce';
+  if (mood === 'shy') return 'idle';
+  return 'idle';
+}
+
 export function petSVG(pet) {
   if (pet.stage === 'egg') return svgWrap(egg(pet.species, pet.hatchesInMs < 15000));
   if (!pet.alive) return svgWrap(ghost(pet));
@@ -92,12 +134,16 @@ export function petSVG(pet) {
   const c = PALETTE[pet.species];
   const s = SCALE[pet.stage] ?? 1;
   const mood = pet.mood;
-  const anim = mood === 'sleeping' ? 'breathe' : mood === 'happy' ? 'bounce' : 'idle';
-  const tint = mood === 'sick' ? 'filter:saturate(.5) hue-rotate(60deg) brightness(1.05)' : '';
+  const anim = animFor(mood);
+  const tint = mood === 'sick' ? 'filter:saturate(.5) hue-rotate(60deg) brightness(1.05)'
+    : mood === 'tired' ? 'filter:saturate(.7) brightness(.95)'
+    : mood === 'grumpy' ? 'filter:saturate(1.1) hue-rotate(-8deg)'
+    : '';
   const bow = pet.stage === 'adult' && pet.form === 'angel'
     ? `<path d="M32 20 l-7 -4 v8z M32 20 l7 -4 v8z" fill="#ff6f9c"/><circle cx="32" cy="20" r="2" fill="#ff3d7f"/>` : '';
   const teen = pet.stage === 'teen' || pet.stage === 'adult'
     ? `<path d="M14 54 q-4 -2 -5 -8 M50 54 q4 -2 5 -8" stroke="${c.shade}" stroke-width="3" fill="none" stroke-linecap="round"/>` : '';
+  const blushBoost = JOYFUL.has(mood) || mood === 'shy' ? 'opacity=".85"' : 'opacity=".55"';
 
   const body = `<g class="${anim}" style="transform-origin:32px 56px;${tint}">
     <g transform="translate(32 56) scale(${s}) translate(-32 -56)">
@@ -106,18 +152,20 @@ export function petSVG(pet) {
       ${teen}
       <ellipse cx="32" cy="38" rx="22" ry="19" fill="${c.body}" stroke="${c.shade}" stroke-width="1.8"/>
       <ellipse cx="32" cy="46" rx="14" ry="8" fill="${c.shade}" opacity=".22"/>
-      <ellipse cx="18" cy="42" rx="3.4" ry="2.2" fill="#ff8fb1" opacity=".55"/>
-      <ellipse cx="46" cy="42" rx="3.4" ry="2.2" fill="#ff8fb1" opacity=".55"/>
+      <ellipse cx="18" cy="42" rx="3.4" ry="2.2" fill="#ff8fb1" ${blushBoost}/>
+      <ellipse cx="46" cy="42" rx="3.4" ry="2.2" fill="#ff8fb1" ${blushBoost}/>
       ${eyes(mood, pet.form)}
       ${mouth(mood, pet.form)}
       ${bow}
     </g>
   </g>`;
-  const zzz = mood === 'sleeping'
+  const zzz = (mood === 'sleeping' || mood === 'sleepy')
     ? `<text class="zzz" x="46" y="18" font-size="9" fill="${INK}">z</text><text class="zzz z2" x="52" y="10" font-size="7" fill="${INK}">z</text>` : '';
   const sparkle = pet.stage === 'adult' && pet.form === 'angel'
     ? `<path class="sparkle" d="M8 14 l1.5 3.5 l3.5 1.5 l-3.5 1.5 l-1.5 3.5 l-1.5 -3.5 l-3.5 -1.5 l3.5 -1.5z" fill="#ffd34d"/>` : '';
-  return svgWrap(body + zzz + sparkle);
+  const hearts = mood === 'love' || mood === 'excited'
+    ? `<text x="8" y="16" font-size="8" fill="#ff5c8a">♡</text><text x="50" y="12" font-size="6" fill="#ff8fb1">♡</text>` : '';
+  return svgWrap(body + zzz + sparkle + hearts);
 }
 
 export function poopSVG() {

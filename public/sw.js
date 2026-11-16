@@ -1,5 +1,5 @@
 // Tamagotchi service worker: offline app shell, never caches the API.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = `tama-shell-${VERSION}`;
 const RUNTIME = `tama-runtime-${VERSION}`;
 const PRECACHE = [

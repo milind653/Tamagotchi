@@ -698,16 +698,25 @@ export class PetStage {
     const scale = STAGE_SCALE[s.stage] ?? 1;
     m.root.scale.setScalar(scale);
     const eyeK = STAGE_EYES[s.stage] ?? 1;
-    const sleeping = s.mood === 'sleeping';
-    const sad = s.mood === 'sad' || s.mood === 'hungry';
-    const sick = s.mood === 'sick';
-    const happy = s.mood === 'happy';
+    const mood = s.mood;
+    const sleeping = mood === 'sleeping' || mood === 'sleepy';
+    const sad = ['sad', 'lonely', 'hungry', 'tired'].includes(mood);
+    const sick = mood === 'sick';
+    const happy = ['happy', 'excited', 'love', 'proud'].includes(mood);
+    const grumpy = mood === 'grumpy';
+    const shy = mood === 'shy';
+    const curious = mood === 'curious' || mood === 'bored';
     const f = m.face;
-    this.expr = { eyeK, sleeping, sad, sick, happy, ghost, angry: s.form === 'rascal' && s.stage === 'adult' };
+    this.expr = {
+      eyeK, sleeping, sad, sick, happy, ghost, shy, curious, grumpy,
+      love: mood === 'love' || mood === 'excited',
+      angry: grumpy || (s.form === 'rascal' && s.stage === 'adult' && !sad && !sick),
+    };
 
     for (const mat of m.materials) {
       mat.color.copy(mat.userData.base);
       if (sick) mat.color.lerp(new THREE.Color('#9fd66a'), 0.45);
+      if (mood === 'tired') mat.color.lerp(new THREE.Color('#c5c0d0'), 0.25);
       if (ghost) mat.color.lerp(new THREE.Color('#eaf2ff'), 0.65);
       mat.transparent = ghost;
       mat.opacity = ghost ? 0.62 : 1;
@@ -718,10 +727,12 @@ export class PetStage {
 
     this.applyFace();
     m.ears.forEach((e) => {
-      const droop = sad || sick || sleeping ? 0.45 : 0;
+      const droop = sad || sick || sleeping ? 0.45 : shy ? 0.25 : 0;
       e.userData.droop = droop;
     });
-    f.blush.forEach((b) => { b.material.opacity = happy ? 0.8 : sad ? 0.35 : 0.55; });
+    f.blush.forEach((b) => {
+      b.material.opacity = this.expr.love || shy ? 0.9 : happy ? 0.8 : sad ? 0.35 : 0.55;
+    });
   }
 
   applyFace() {
@@ -729,7 +740,7 @@ export class PetStage {
     const f = m.face;
     const x = this.expr;
     const react = this.react_?.type;
-    const loveEyes = react === 'love';
+    const loveEyes = react === 'love' || x.love;
     const eyeMode = x.ghost ? 'x' : x.sleeping ? 'sleep' : loveEyes ? 'happy' : 'open';
     for (const e of f.eyes) {
       e.open.visible = eyeMode === 'open';
@@ -737,10 +748,13 @@ export class PetStage {
       e.happy.visible = eyeMode === 'happy';
       e.sleep.visible = eyeMode === 'sleep';
       e.x.visible = eyeMode === 'x';
-      const k = x.eyeK * (x.sad ? 1.12 : 1);
-      e.eye.scale.set(k, k * (x.sick && eyeMode === 'open' ? 0.55 : 1), 1);
+      const k = x.eyeK * (x.sad ? 1.12 : x.curious ? 1.08 : 1);
+      e.eye.scale.set(k * (x.curious && e.side < 0 ? 1.15 : 1), k * (x.sick && eyeMode === 'open' ? 0.55 : x.shy ? 0.85 : 1), 1);
     }
-    const browMode = x.ghost || x.sleeping ? 'none' : x.angry ? 'angry' : x.sad || x.sick ? 'worried' : 'none';
+    const browMode = x.ghost || x.sleeping ? 'none'
+      : x.angry ? 'angry'
+      : x.sad || x.sick || x.shy ? 'worried'
+      : 'none';
     for (const b of f.brows) {
       b.holder.visible = browMode !== 'none';
       const tilt = browMode === 'worried' ? -b.side * 0.4 : b.side * 0.4;
@@ -754,8 +768,8 @@ export class PetStage {
     if (x.ghost) show = 'open';
     else if (x.sleeping) show = 'smile';
     else if (chew) show = 'open';
-    else if (x.sick) show = 'flat';
-    else if (this.state.mood === 'hungry') show = 'open';
+    else if (x.sick || x.grumpy) show = 'flat';
+    else if (this.state.mood === 'hungry' || this.state.mood === 'curious') show = 'open';
     else if (x.sad) show = 'frown';
     else if (loveEyes) show = 'bigOpen';
     else if (x.happy) show = 'cat';
@@ -766,11 +780,15 @@ export class PetStage {
   react(type) {
     this.react_ = { type, t: 0 };
     if (type === 'love') this.burst('💗', 5);
+    if (type === 'chat') this.burst('💬', 4);
+    if (type === 'excited') this.burst('✨', 5);
     if (type === 'eat') this.burst('🍙', 3);
     if (type === 'play') this.burst('⭐', 5);
     if (type === 'clean') this.burst('✨', 6);
     if (type === 'heal') this.burst('💊', 3);
     if (type === 'sad') this.burst('💧', 3);
+    if (type === 'shy') this.burst('😳', 3);
+    if (type === 'proud') this.burst('🌟', 4);
     if (this.current && !this.current.isEgg) this.applyFace();
     if (!this.running) this.start();
   }
