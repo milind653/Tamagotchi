@@ -1026,14 +1026,11 @@ export class PetStage {
       }
     }
 
-    const autoSpin = !this.drag.active && performance.now() >= (this.drag.resumeAt || 0);
-    if (autoSpin) this.spinY += dt * 0.45;
-
     if (cur.isEgg) {
       const hatching = this.state.hatchesInMs < 15000;
       const mesh = cur.egg.mesh;
       mesh.rotation.z = Math.sin(t * (hatching ? 22 : 2.2)) * (hatching ? 0.16 : 0.08);
-      mesh.rotation.y = hatching ? this.spinY * 0.2 : this.spinY;
+      mesh.rotation.y = hatching ? 0 : this.spinY + Math.sin(t * 0.7) * 0.15;
       mesh.position.y = 1.05 + (hatching ? Math.abs(Math.sin(t * 11)) * 0.05 : Math.sin(t * 2) * 0.02);
       this.pivot.position.y = 0;
       this.pivot.scale.set(1, 1, 1);

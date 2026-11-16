@@ -43,14 +43,12 @@ Stats: fullness, happiness, energy, cleanliness, health. Actions:
 - **Clean / Bath** - remove mess and restore cleanliness. Leaving mess around makes your pet sick.
 - **Medicine** - cures sickness.
 - **Lights** - put the pet to sleep to regain energy.
-- **Talk** - open a chat with your pet. They reply in their own voice (love, jokes, how-are-you, Japanese greetings…) and their face shows more emotions: excited, shy, lonely, grumpy, proud, curious and more.
 
 If health reaches zero the pet passes away (starvation, illness or neglect) and moves to your memorial; you can then adopt a new egg. The hall of fame ranks the longest-lived pets.
 
 ## Code layout
 
 - `src/engine.js` - pure simulation rules (tick, actions, evolution, moods); unit tested in `test/`.
-- `src/chat.js` - personality-driven chat replies (no external AI).
 - `src/db.js` - SQLite Cloud connection and schema.
 - `src/auth.js` - scrypt password hashing and cookie sessions (stored hashed in the DB).
 - `src/pets.js` - persistence for pets, per-user locking, diary, leaderboard.
@@ -59,4 +57,4 @@ If health reaches zero the pet passes away (starvation, illness or neglect) and 
 - `public/play.html`, `app.js`, `app.css`, `style.css`, `sheet.js` - the mobile-first game shell, served at `/play` (`sheet.js` is the bottom-sheet component).
 - `public/manifest.webmanifest`, `sw.js`, `offline.html`, `pwa.js`, `icons/` - PWA manifest, service worker (app shell cache; API calls are never cached), offline page, install handling and app icons.
 - `public/sprites.js` - flat SVG pets (Mochi, Neko, Usagi, Tori) drawn in code, shared by both pages.
-- `public/pet3d.js` - the 3D pets (Neko, Inu, Panda, Kitsune, Penguin, Hamster, Axolotl), built from plush-style three.js shapes with expressive faces. Drag to spin 360°, tap to show an emotion. three.js is served from `node_modules` at `/vendor/three`; browsers without WebGL fall back to flat art.
+- `public/pet3d.js` - the 3D pets (Neko, Inu, Panda, Kitsune, Penguin, Hamster, Axolotl), built from plush-style three.js shapes with expressive faces. Drag to turn the pet, tap to show an emotion. three.js is served from `node_modules` at `/vendor/three`; browsers without WebGL fall back to flat art.

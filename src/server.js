@@ -94,15 +94,10 @@ app.post('/api/pet', requireUser, wrap(async (req, res) => {
   res.status(201).json({ pet });
 }));
 
-const chatLimit = rateLimit(40, 60_000);
-app.post('/api/pet/:action', requireUser, (req, res, next) => {
-  if (req.params.action === 'chat') return chatLimit(req, res, next);
-  next();
-}, wrap(async (req, res) => {
+app.post('/api/pet/:action', requireUser, wrap(async (req, res) => {
   const { action } = req.params;
   const params = action === 'feed' ? { kind: req.body?.kind }
     : action === 'play' ? { guess: req.body?.guess }
-    : action === 'chat' ? { text: req.body?.text }
     : {};
   res.json(await pets.doAction(req.user.id, action, params));
 }));
