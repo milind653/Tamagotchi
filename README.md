@@ -43,12 +43,14 @@ Stats: fullness, happiness, energy, cleanliness, health. Actions:
 - **Clean / Bath** - remove mess and restore cleanliness. Leaving mess around makes your pet sick.
 - **Medicine** - cures sickness.
 - **Lights** - put the pet to sleep to regain energy.
+- **Talk** - open a chat with your pet. They reply in their own voice (love, jokes, how-are-you, Japanese greetings…) and their face shows more emotions: excited, shy, lonely, grumpy, proud, curious and more.
 
 If health reaches zero the pet passes away (starvation, illness or neglect) and moves to your memorial; you can then adopt a new egg. The hall of fame ranks the longest-lived pets.
 
 ## Code layout
 
-- `src/engine.js` - pure simulation rules (tick, actions, evolution); unit tested in `test/`.
+- `src/engine.js` - pure simulation rules (tick, actions, evolution, moods); unit tested in `test/`.
+- `src/chat.js` - personality-driven chat replies (no external AI).
 - `src/db.js` - SQLite Cloud connection and schema.
 - `src/auth.js` - scrypt password hashing and cookie sessions (stored hashed in the DB).
 - `src/pets.js` - persistence for pets, per-user locking, diary, leaderboard.
