@@ -9,6 +9,8 @@ const PALETTE = {
   penguin: { body: '#8a98c4', shade: '#3f4b73', accent: '#ffffff' },
   hamster: { body: '#f6c58d', shade: '#dba064', accent: '#ffb4c2' },
   axolotl: { body: '#ffc4d8', shade: '#ff8fb1', accent: '#ffe6f0' },
+  shiba: { body: '#e0703a', shade: '#b84e24', accent: '#fff3e2' },
+  mike: { body: '#fffaf6', shade: '#f08a3c', accent: '#3c3448' },
 };
 const INK = '#3b2f3f';
 const SCALE = { baby: 0.62, child: 0.78, teen: 0.9, adult: 1 };
@@ -96,6 +98,18 @@ function extras(species, c) {
       return `<ellipse cx="22" cy="11" rx="5" ry="13" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5"/>
         <ellipse cx="42" cy="11" rx="5" ry="13" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" transform="rotate(8 42 11)"/>
         <ellipse cx="22" cy="12" rx="2.2" ry="8" fill="#ffb3c6"/><ellipse cx="42" cy="12" rx="2.2" ry="8" fill="#ffb3c6" transform="rotate(8 42 12)"/>`;
+    case 'shiba':
+      return `<path d="M16 22 L19 5 L30 16z M48 22 L45 5 L34 16z" fill="${c.body}" stroke="${c.shade}" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M19 18 L21 9 L26 16z M45 18 L43 9 L38 16z" fill="#f0b09a"/>
+        <ellipse cx="32" cy="47" rx="9" ry="5" fill="${c.accent}"/>
+        <ellipse cx="32" cy="45" rx="2.6" ry="2" fill="#2c242c"/>
+        <path d="M50 36 q10 -2 7 -12 q-3 7 -7 9" fill="${c.body}" stroke="${c.shade}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    case 'mike':
+      return `<path d="M15 24 L20 6 L30 17z" fill="${c.shade}" stroke="${c.shade}" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M49 24 L44 6 L34 17z" fill="${c.accent}" stroke="#2a2430" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M18 19 L21 10 L26 16z M46 19 L43 10 L38 16z" fill="#ffb3c6"/>
+        <path d="M11 39 h-8 M11 42 l-8 2 M11 45 l-7 4 M53 39 h8 M53 42 l8 2 M53 45 l7 4" stroke="#2a2430" stroke-width="1" stroke-linecap="round"/>
+        <path d="M46 52 q12 1 10 -10" fill="${c.shade}" stroke="${c.shade}" stroke-width="2.4" stroke-linecap="round"/>`;
     case 'tori':
       return `<path d="M29 15 q-3 -8 -7 -9 q1 6 4 10z M35 15 q3 -8 7 -9 q-1 6 -4 10z" fill="${c.shade}"/>
         <path d="M28 40 L36 40 L32 46z" fill="${c.accent}" stroke="#e07b13" stroke-width="0.8" stroke-linejoin="round"/>

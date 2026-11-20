@@ -8,6 +8,8 @@ export const MAX_SIM_MS = 12 * 60 * MINUTE; // offline time simulated per reques
 export const MAX_WEIGHT_FOR_SNACK = 30;
 
 export const SPECIES = {
+  shiba: { name: 'Shiba', jp: 'しば', trait: 'A real Shiba Inu puppy. Pet their head and the whole body wags.', model3d: true, real: true },
+  mike: { name: 'Mike', jp: 'みけ', trait: 'A real calico kitten. Touch them and they purr, blink, or flick their tail.', model3d: true, real: true },
   mochi: { name: 'Mochi', jp: 'もち', trait: 'A squishy rice-cake blob.' },
   neko: { name: 'Neko', jp: 'ねこ', trait: 'A cuddly 3D kitten with soft whiskers and pink paw pads.', model3d: true },
   inu: { name: 'Inu', jp: 'いぬ', trait: 'A round 3D puppy with floppy ears and a wagging tail.', model3d: true },

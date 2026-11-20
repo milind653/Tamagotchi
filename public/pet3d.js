@@ -1,6 +1,6 @@
 import * as THREE from '/vendor/three/three.module.js';
 
-export const MODEL_SPECIES = new Set(['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu']);
+export const MODEL_SPECIES = new Set(['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu', 'shiba', 'mike']);
 
 let webglOk = null;
 export function webglSupported() {
@@ -30,6 +30,8 @@ const EGG_COLORS = {
   axolotl: ['#ffd3e2', '#ff7fa8', '#fff0f6'],
   neko: ['#ffd7b0', '#f29a4a', '#fff3e0'],
   inu: ['#f5dfc0', '#c99562', '#ffe8d2'],
+  shiba: ['#ffe0c4', '#e0703a', '#fff6ea'],
+  mike: ['#fff7f2', '#f08a3c', '#3c3448'],
 };
 
 function plush(color, opts = {}) {
@@ -47,6 +49,41 @@ function plush(color, opts = {}) {
   return m;
 }
 const flat = (color, opts = {}) => new THREE.MeshBasicMaterial({ color, toneMapped: false, ...opts });
+
+let furTex = null;
+function furTexture() {
+  if (furTex) return furTex;
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 2400; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const a = 0.04 + Math.random() * 0.12;
+    g.strokeStyle = Math.random() > 0.5 ? `rgba(255,255,255,${a})` : `rgba(50,28,18,${a})`;
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + (Math.random() - 0.5) * 3, y + 2 + Math.random() * 6);
+    g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(3, 3);
+  furTex = t;
+  return t;
+}
+
+function coat(color) {
+  const m = plush(color, { roughness: 0.92, sheen: 0.4, sheenRoughness: 0.75 });
+  const tex = furTexture();
+  m.map = tex;
+  m.bumpMap = tex;
+  m.bumpScale = 0.04;
+  return m;
+}
 
 function ell(rx, ry, rz, material, segs = 40) {
   const m = new THREE.Mesh(new THREE.SphereGeometry(1, segs, Math.round(segs * 0.7)), material);
@@ -574,7 +611,169 @@ function inu() {
   return { root, head, ears, tail, arms, face, spec, headY: 1.32, bodyG };
 }
 
-const BUILDERS = { panda, kitsune, penguin, hamster, axolotl, neko, inu };
+function limb(material, pawMat, { x, y, z, len = 0.34, r = 0.09, parent, role = 'front', lean = 0 }) {
+  const g = new THREE.Group();
+  at(ell(r, len * 0.5, r, material), 0, -len * 0.35, 0, g);
+  at(ell(r * 1.35, r * 0.5, r * 1.5, pawMat), 0, -len * 0.82, r * 0.3, g);
+  at(g, x, y, z, parent);
+  g.rotation.z = lean;
+  g.userData.side = x < 0 ? -1 : 1;
+  g.userData.role = role;
+  return g;
+}
+
+function earCone(outerMat, innerMat, s, x, y, z, head, { h = 0.4, r = 0.18, tilt = 0.25, lean = -0.2, baseX = -0.12 } = {}) {
+  const ear = new THREE.Group();
+  const outer = new THREE.Mesh(new THREE.ConeGeometry(r, h, 16), outerMat);
+  outer.scale.z = 0.5;
+  at(outer, 0, h * 0.42, 0, ear);
+  const inner = new THREE.Mesh(new THREE.ConeGeometry(r * 0.55, h * 0.62, 12), innerMat);
+  inner.scale.z = 0.45;
+  at(inner, 0, h * 0.32, 0.045, ear);
+  at(ear, x, y, z, head);
+  ear.rotation.z = -s * tilt;
+  ear.rotation.x = lean;
+  ear.userData = { side: s, base: -s * tilt, baseX: lean };
+  return ear;
+}
+
+// A sitting Shiba Inu, facing the camera the way a real puppy does.
+function shiba() {
+  const red = coat('#e0703a');
+  const cream = coat('#fff3e2');
+  const earIn = coat('#f0b09a');
+  const dark = plush('#2c242c');
+  const root = new THREE.Group();
+  const bodyG = new THREE.Group();
+  root.add(bodyG);
+
+  at(ell(0.58, 0.4, 0.5, red), 0, 0.42, -0.06, bodyG);
+  at(ell(0.42, 0.38, 0.4, red), 0, 0.82, 0.16, bodyG);
+  at(ell(0.26, 0.24, 0.16, cream), 0, 0.74, 0.4, bodyG);
+  at(ell(0.36, 0.12, 0.24, cream), 0, 0.2, 0.1, bodyG);
+
+  const arms = [];
+  for (const s of [-1, 1]) {
+    arms.push(limb(red, cream, { x: s * 0.22, y: 0.62, z: 0.32, len: 0.42, r: 0.09, parent: bodyG, role: 'front', lean: s * 0.06 }));
+    arms.push(limb(red, cream, { x: s * 0.22, y: 0.36, z: -0.02, len: 0.22, r: 0.1, parent: bodyG, role: 'back' }));
+  }
+
+  const tail = new THREE.Group();
+  const curl = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.08, 12, 24, Math.PI * 1.7), red);
+  curl.rotation.x = 0.7;
+  curl.rotation.z = -0.4;
+  tail.add(curl);
+  at(ell(0.09, 0.09, 0.09, cream, 12), 0.12, 0.12, 0.08, tail);
+  const grab = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 10, 8),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+  );
+  tail.add(grab);
+  at(tail, 0.62, 0.78, 0.02, root);
+
+  const spec = { rx: 0.52, ry: 0.46, rz: 0.48, eyeX: 0.18, eyeY: 0.06, eyeR: 0.078, mouthY: -0.2, mouthW: 0.07, blushX: 0.3, blushY: -0.08, blushR: 0.065, browK: 2.3 };
+  const head = new THREE.Group();
+  head.position.set(0, 1.32, 0.2);
+  root.add(head);
+  head.add(ell(spec.rx, spec.ry, spec.rz, red));
+  const muzzle = ell(0.2, 0.13, 0.1, cream, 22);
+  onSurface(muzzle, spec, 0, -0.16, 0.012);
+  head.add(muzzle);
+  for (const s of [-1, 1]) {
+    const brow = ell(0.09, 0.045, 0.04, cream, 14);
+    onSurface(brow, spec, s * 0.2, 0.2, 0.008);
+    head.add(brow);
+    const cheek = ell(0.1, 0.07, 0.05, cream, 14);
+    onSurface(cheek, spec, s * 0.28, -0.08, 0.006);
+    head.add(cheek);
+  }
+  const ears = [
+    earCone(red, earIn, -1, -0.3, 0.36, -0.02, head, { h: 0.4, r: 0.17, tilt: 0.32, lean: -0.18 }),
+    earCone(red, earIn, 1, 0.3, 0.36, -0.02, head, { h: 0.4, r: 0.17, tilt: 0.32, lean: -0.18 }),
+  ];
+  const face = buildFace(head, spec);
+  const nose = ell(0.065, 0.05, 0.055, dark, 16);
+  onSurface(nose, spec, 0, -0.08, 0.05);
+  head.add(nose);
+  const tongue = ell(0.055, 0.08, 0.028, plush('#ff7b9c'), 12);
+  onSurface(tongue, spec, 0, -0.3, 0.02);
+  tongue.visible = false;
+  head.add(tongue);
+  return { root, head, ears, tail, arms, face, spec, headY: 1.32, bodyG, kind: 'dog', bits: { tongue } };
+}
+
+// A sitting calico, the classic real-life lap cat.
+function mike() {
+  const white = coat('#fffaf6');
+  const orange = coat('#f08a3c');
+  const soot = coat('#3c3448');
+  const pink = plush('#ffb3c6');
+  const ink = plush('#2a2430');
+  const root = new THREE.Group();
+  const bodyG = new THREE.Group();
+  root.add(bodyG);
+
+  at(ell(0.66, 0.42, 0.52, white), 0, 0.46, 0, bodyG);
+  const hip = ell(0.26, 0.2, 0.18, orange, 18);
+  hip.position.set(0.32, 0.52, -0.12);
+  bodyG.add(hip);
+  const side = ell(0.2, 0.16, 0.14, soot, 16);
+  side.position.set(-0.38, 0.5, 0.02);
+  bodyG.add(side);
+  at(ell(0.3, 0.2, 0.16, white), 0, 0.62, 0.32, bodyG);
+
+  const arms = [];
+  for (const s of [-1, 1]) {
+    const paw = new THREE.Group();
+    at(ell(0.1, 0.07, 0.16, white), 0, 0, 0.02, paw);
+    for (const k of [-1, 0, 1]) at(ell(0.022, 0.016, 0.02, pink, 8), k * 0.034, 0.02, 0.12, paw);
+    at(paw, s * 0.16, 0.16, 0.36, bodyG);
+    paw.userData.side = s;
+    paw.userData.role = 'front';
+    arms.push(paw);
+  }
+
+  const tail = new THREE.Group();
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.06, 10, 28, Math.PI), white);
+  arc.rotation.x = Math.PI / 2;
+  arc.position.set(0.02, 0.02, 0.12);
+  tail.add(arc);
+  at(ell(0.075, 0.07, 0.09, orange, 12), 0.3, 0.04, 0.12, tail);
+  at(tail, 0, 0.2, 0.12, root);
+  tail.userData.baseZ = -0.15;
+
+  const spec = { rx: 0.5, ry: 0.44, rz: 0.46, eyeX: 0.17, eyeY: 0.05, eyeR: 0.082, mouthY: -0.18, mouthW: 0.055, blushX: 0.28, blushY: -0.08, blushR: 0.06 };
+  const head = new THREE.Group();
+  head.position.set(0, 1.2, 0.12);
+  root.add(head);
+  head.add(ell(spec.rx, spec.ry, spec.rz, white));
+  const hop = ell(0.13, 0.09, 0.05, orange, 16);
+  onSurface(hop, spec, -0.14, 0.3, 0.01);
+  head.add(hop);
+  const hsoot = ell(0.11, 0.08, 0.04, soot, 14);
+  onSurface(hsoot, spec, 0.16, 0.32, 0.01);
+  head.add(hsoot);
+
+  const ears = [
+    earCone(orange, pink, -1, -0.28, 0.32, -0.02, head, { h: 0.36, r: 0.15, tilt: 0.22, lean: -0.08 }),
+    earCone(soot, pink, 1, 0.28, 0.32, -0.02, head, { h: 0.36, r: 0.15, tilt: 0.22, lean: -0.08 }),
+  ];
+  const face = buildFace(head, spec);
+  const nose = ell(0.038, 0.028, 0.03, pink, 12);
+  onSurface(nose, spec, 0, -0.08, 0.035);
+  head.add(nose);
+  for (const s of [-1, 1]) {
+    for (const k of [0, 1, 2]) {
+      const w = new THREE.Mesh(new THREE.CapsuleGeometry(0.006, 0.26, 3, 5), ink);
+      w.rotation.z = s * (Math.PI / 2) + s * (k - 1) * 0.2;
+      onSurface(w, spec, s * 0.16, -0.11 + (k - 1) * 0.02, 0.012);
+      head.add(w);
+    }
+  }
+  return { root, head, ears, tail, arms, face, spec, headY: 1.2, bodyG, kind: 'cat' };
+}
+
+const BUILDERS = { panda, kitsune, penguin, hamster, axolotl, neko, inu, shiba, mike };
 
 // ---------------------------------------------------------------- accessories
 
@@ -748,7 +947,7 @@ export class PetStage {
       this.drag.active = false;
       this.drag.moved = false;
       try { this.canvas.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
-      if (wasTap) this.touchEmotion();
+      if (wasTap) this.touchEmotion(e.clientX, e.clientY);
     };
     if (live) {
       window.addEventListener('pointermove', this.onPointerMove, { passive: true });
@@ -894,7 +1093,7 @@ export class PetStage {
     const f = m.face;
     const x = this.expr;
     const react = this.react_?.type;
-    const loveEyes = react === 'love' || x.love;
+    const loveEyes = (react === 'love' || x.love) && m.kind !== 'cat';
     const eyeMode = x.ghost ? 'x' : x.sleeping ? 'sleep' : loveEyes ? 'happy' : 'open';
     for (const e of f.eyes) {
       e.open.visible = eyeMode === 'open';
@@ -931,7 +1130,29 @@ export class PetStage {
     for (const [k, mesh] of Object.entries(mm)) mesh.visible = k === show;
   }
 
-  touchEmotion() {
+  touchAt(clientX, clientY) {
+    const m = this.current?.m;
+    if (!m || clientX == null) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const ndc = new THREE.Vector2(
+      ((clientX - rect.left) / rect.width) * 2 - 1,
+      -((clientY - rect.top) / rect.height) * 2 + 1,
+    );
+    this.raycaster ??= new THREE.Raycaster();
+    this.raycaster.setFromCamera(ndc, this.camera);
+    const hits = this.raycaster.intersectObject(m.root, true);
+    if (!hits.length) return null;
+    let o = hits[0].object;
+    while (o) {
+      if (o === m.head) return 'head';
+      if (o === m.tail) return 'tail';
+      o = o.parent;
+    }
+    return 'body';
+  }
+
+  touchEmotion(clientX, clientY) {
     if (!this.current || this.current.isEgg || !this.state.alive) {
       this.burst('✨', 3);
       this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion: 'curious' } }));
@@ -942,20 +1163,38 @@ export class PetStage {
       this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion: 'sleepy' } }));
       return;
     }
-    const cycle = ['love', 'excited', 'shy', 'happy', 'proud', 'curious'];
-    const type = cycle[this.touchIdx++ % cycle.length];
-    const moodMap = { love: 'love', excited: 'excited', shy: 'shy', happy: 'happy', proud: 'proud', curious: 'curious' };
+    const kind = this.current.m?.kind;
+    const zone = (kind === 'dog' || kind === 'cat') ? this.touchAt(clientX, clientY) : null;
+    const zones = {
+      dog: { head: 'love', body: 'wag', tail: 'play' },
+      cat: { head: 'love', body: 'chat', tail: 'shy' },
+    };
+    const cycles = {
+      dog: ['love', 'wag', 'excited', 'proud', 'curious'],
+      cat: ['love', 'chat', 'shy', 'curious', 'excited'],
+    };
+    const cycle = cycles[kind] ?? ['love', 'excited', 'shy', 'happy', 'proud', 'curious'];
+    const type = (zone && zones[kind]?.[zone]) || cycle[this.touchIdx++ % cycle.length];
+    const moodMap = {
+      love: 'love', excited: 'excited', shy: 'shy', happy: 'happy', proud: 'proud',
+      curious: 'curious', play: 'excited', chat: 'happy', wag: 'happy',
+    };
     const emotion = moodMap[type] ?? 'happy';
     this.state.mood = emotion;
     this.applyStaticLook();
     this.react(type === 'happy' ? 'love' : type === 'curious' ? 'chat' : type);
-    this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion } }));
+    this.canvas.dispatchEvent(new CustomEvent('pet-touch', { bubbles: true, detail: { emotion, zone } }));
   }
 
   react(type) {
     this.react_ = { type, t: 0 };
-    if (type === 'love') this.burst('💗', 5);
-    if (type === 'chat') this.burst('💬', 4);
+    if (type === 'love') {
+      this.burst('💗', 5);
+      if (this.current?.m?.kind === 'dog') this.burst('🐶', 2);
+      if (this.current?.m?.kind === 'cat') this.burst('😺', 2);
+    }
+    if (type === 'wag') this.burst('🐶', 4);
+    if (type === 'chat') this.burst(this.current?.m?.kind === 'cat' ? '😺' : '💬', 4);
     if (type === 'excited') this.burst('✨', 5);
     if (type === 'eat') this.burst('🍙', 3);
     if (type === 'play') this.burst('⭐', 5);
@@ -1050,11 +1289,13 @@ export class PetStage {
     let jump = 0;
     let squash = 0;
     let playSpin = 0;
-    if (r && (r.type === 'love' || r.type === 'play' || r.type === 'clean' || r.type === 'heal' || r.type === 'excited' || r.type === 'shy' || r.type === 'proud' || r.type === 'chat')) {
+    if (r && ['love', 'play', 'clean', 'heal', 'excited', 'shy', 'proud', 'chat', 'wag'].includes(r.type)) {
       const ph = Math.min(1, r.t / 0.7);
-      jump = Math.sin(ph * Math.PI) * (r.type === 'play' || r.type === 'excited' ? 0.75 : 0.45);
-      squash = ph < 0.12 ? ph / 0.12 * 0.12 : 0;
-      if (r.type === 'play' || r.type === 'excited') playSpin = ph * Math.PI * 2;
+      const catSoft = m.kind === 'cat' && (r.type === 'love' || r.type === 'chat' || r.type === 'shy');
+      const big = r.type === 'play' || r.type === 'excited';
+      jump = Math.sin(ph * Math.PI) * (catSoft ? 0.1 : r.type === 'wag' ? 0.22 : big ? 0.75 : 0.45);
+      squash = ph < 0.12 ? (ph / 0.12) * (catSoft ? 0.04 : 0.12) : 0;
+      if (big) playSpin = ph * Math.PI * 2;
     }
     m.root.rotation.y = this.spinY + playSpin;
     if (mood === 'happy' && !r) {
@@ -1082,21 +1323,45 @@ export class PetStage {
     m.head.rotation.z = Math.sin(t * 0.6) * 0.04 + cuddle + (x.sad ? 0.1 : 0) + (mood === 'happy' ? Math.sin(t * 2.4) * 0.05 : 0);
     m.head.position.y = m.headY + br * 0.012;
 
-    const fast = mood === 'happy' || r?.type === 'love' || r?.type === 'play';
+    const fast = mood === 'happy' || mood === 'love' || mood === 'excited' || ['love', 'play', 'excited', 'wag'].includes(r?.type);
+    if (m.bodyG) {
+      const dogWag = m.kind === 'dog' && (fast || mood === 'proud');
+      m.bodyG.rotation.y = dogWag ? Math.sin(t * (r ? 13 : 6)) * (r ? 0.16 : 0.06) : 0;
+    }
     for (const e of m.ears) {
       const u = e.userData;
       const wig = Math.sin(t * (fast ? 7 : 1.6) + (u.phase ?? 0)) * (fast ? 0.14 : 0.04);
       if (u.axis === 'x') e.rotation.x = u.base + wig * 1.6;
-      else e.rotation.z = u.base - u.side * (u.droop ?? 0) + wig;
+      else {
+        e.rotation.z = u.base - u.side * (u.droop ?? 0) + wig;
+        if (u.baseX != null) e.rotation.x = u.baseX;
+      }
+    }
+    if (m.kind === 'cat' && (mood === 'shy' || r?.type === 'shy')) {
+      for (const e of m.ears) {
+        const u = e.userData;
+        e.rotation.z = u.base - u.side * 0.65;
+        e.rotation.x = 0.5;
+      }
     }
     if (m.tail) {
-      const wag = Math.sin(t * (fast ? 9 : 2)) * (fast ? 0.5 : 0.12);
-      m.tail.rotation.y = wag;
+      const dog = m.kind === 'dog';
+      const cat = m.kind === 'cat';
+      const speed = dog ? (fast ? 14 : 5) : cat ? (r?.type === 'shy' ? 14 : fast ? 4.5 : 1.5) : (fast ? 9 : 2);
+      const amp = dog ? (fast ? 0.8 : 0.32) : cat ? (r?.type === 'shy' ? 0.65 : fast ? 0.38 : 0.14) : (fast ? 0.5 : 0.12);
+      m.tail.rotation.y = Math.sin(t * speed) * amp;
+      if (cat) m.tail.rotation.z = (m.tail.userData.baseZ ?? 0) + Math.sin(t * speed * 0.7) * amp * 0.45;
+    }
+    if (m.bits?.tongue) {
+      m.bits.tongue.visible = m.kind === 'dog' && !x.sleeping && !x.ghost && !x.sad && !x.sick && (fast || mood === 'proud');
     }
     m.arms?.forEach((a, i) => {
       const base = a.userData.base ?? (a.userData.base = a.rotation.z);
-      const side = i === 0 ? -1 : 1;
-      const lift = fast ? Math.abs(Math.sin(t * 7 + i)) * 0.5 : x.sleeping ? 0 : Math.sin(t * 1.6 + i) * 0.04;
+      const side = a.userData.side ?? (i === 0 ? -1 : 1);
+      const front = a.userData.role !== 'back';
+      const lift = !front ? Math.sin(t * 1.6 + i) * 0.02
+        : fast ? Math.abs(Math.sin(t * 7 + i)) * (m.kind === 'cat' ? 0.28 : 0.45)
+        : x.sleeping ? 0 : Math.sin(t * 1.6 + i) * 0.04;
       a.rotation.z = base + side * lift;
     });
 
@@ -1109,6 +1374,16 @@ export class PetStage {
         for (const e of m.face.eyes) e.open.scale.y = Math.max(0.1, k);
         if (this.blink.t > 0.16) { this.blink.t = -1; this.blink.next = 2 + Math.random() * 3.5; }
       }
+    }
+
+    if (m.kind === 'cat' && !x.sleeping && !x.ghost && (r?.type === 'love' || r?.type === 'chat' || mood === 'love')) {
+      const phase = (t * 1.15) % (Math.PI * 2);
+      const slow = phase > 1.15 && phase < 2.35 ? 0.08 : 1;
+      for (const e of m.face.eyes) {
+        if (e.open.visible) e.open.scale.y = Math.min(e.open.scale.y, slow);
+      }
+      m.head.rotation.z += Math.sin(t * 1.4) * 0.14;
+      m.root.position.x += Math.sin(t * 42) * 0.007;
     }
 
     if (r?.type === 'eat' || mood === 'hungry') {

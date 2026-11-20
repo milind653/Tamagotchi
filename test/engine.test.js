@@ -169,5 +169,7 @@ test('every species has a display name and Japanese name', async () => {
     assert.ok(info.name && info.jp && info.trait, key);
     assert.doesNotThrow(() => newPet({ name: 'Momo', species: key, now: T0 }));
   }
-  for (const key of ['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu']) assert.equal(SPECIES[key].model3d, true);
+  for (const key of ['panda', 'kitsune', 'penguin', 'hamster', 'axolotl', 'neko', 'inu', 'shiba', 'mike']) assert.equal(SPECIES[key].model3d, true);
+  assert.equal(SPECIES.shiba.real, true);
+  assert.equal(SPECIES.mike.real, true);
 });
