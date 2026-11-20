@@ -39,7 +39,7 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
 }
 
 // Interactive hero demo (local only, nothing is saved)
-const demo = { species: 'panda', sleeping: false };
+const demo = { species: 'shiba', sleeping: false };
 let stage = null;
 function drawDemo() {
   const mood = demo.sleeping ? 'sleeping' : 'happy';
@@ -52,6 +52,12 @@ function drawDemo() {
       stage = new three.PetStage({ live: true });
       box.replaceChildren();
       stage.mount(box);
+      stage.canvas.addEventListener('pet-touch', (e) => {
+        const emotion = e.detail?.emotion ?? 'happy';
+        const zone = e.detail?.zone;
+        const lines = PET_LINES[demo.species];
+        $('demo-note').textContent = (zone && lines?.[zone]) || lines?.[emotion] || GENERIC_TOUCH[emotion] || 'Hi there! Pet me again!';
+      });
     }
     stage.setPet(pet);
   } else {
@@ -74,7 +80,33 @@ function demoFx(emoji) {
     setTimeout(() => s.remove(), 1600);
   }
 }
-const NAMES = { panda: 'Panda', kitsune: 'Kitsune', penguin: 'Pen', hamster: 'Hamu', axolotl: 'Uparupa', mochi: 'Mochi', neko: 'Neko', inu: 'Inu', usagi: 'Usagi', tori: 'Tori' };
+const NAMES = { shiba: 'Shiba', mike: 'Mike', panda: 'Panda', kitsune: 'Kitsune', penguin: 'Pen', hamster: 'Hamu', axolotl: 'Uparupa', mochi: 'Mochi', neko: 'Neko', inu: 'Inu', usagi: 'Usagi', tori: 'Tori' };
+const PET_LINES = {
+  shiba: {
+    head: 'Shiba leans into your hand and wags with their whole body.',
+    body: 'Wiggle wiggle. That is the happy wag.',
+    tail: 'Boof! The tail was not expecting that.',
+    love: 'Shiba nuzzles your hand.',
+    happy: 'Tail at full speed.',
+    excited: 'Shiba spins in a happy circle.',
+    curious: 'Head tilt. They are listening.',
+    proud: 'Very good dog. Obviously.',
+  },
+  mike: {
+    head: 'Mike slow-blinks. That means "I love you."',
+    body: 'Prrrr. The paws start kneading.',
+    tail: 'The tail flicks. Cats pick who pets the tail.',
+    love: 'A tiny slow blink, just for you.',
+    happy: 'Purring like a little motor.',
+    shy: 'Mike looks away, still purring.',
+    curious: 'Sniff. You smell interesting.',
+    excited: 'Pounce! Then a dignified sit.',
+  },
+};
+const GENERIC_TOUCH = {
+  love: 'Hehe, that tickles!', excited: 'Again, again!', shy: 'Ehe…', happy: 'I like that.',
+  proud: 'I am a very good pet.', curious: 'What was that?', sleepy: 'Zzz… five more minutes.',
+};
 const REACTIONS = {
   meal: ['🍙', 'Yum! Oishii!', 'eat'],
   play: ['⭐', 'Wheee! So fun!', 'play'],
@@ -98,7 +130,11 @@ document.querySelector('.demo-buttons').addEventListener('click', (e) => {
   if (stage) stage.react(kind); else demoFx(emoji);
   $('demo-note').textContent = note;
 });
-$('demo-pet').addEventListener('pointerdown', () => { $('demo-note').textContent = 'Hi there! Pet me again!'; if (!stage) demoFx('💗'); });
+$('demo-pet').addEventListener('pointerdown', () => {
+  if (stage) return;
+  $('demo-note').textContent = 'Hi there! Pet me again!';
+  demoFx('💗');
+});
 
 const picker = $('demo-picker');
 for (const key of Object.keys(NAMES)) {
@@ -122,6 +158,8 @@ drawDemo();
 
 // Species cards
 const SPECIES = [
+  ['shiba', 'Shiba', 'しば', 'A real Shiba Inu puppy. Pet the head, the chest, or the curly tail.', '#f0b48a', 'REAL'],
+  ['mike', 'Mike', 'みけ', 'A real calico kitten. A head pet earns a slow blink. The tail flicks.', '#ffd9c8', 'REAL'],
   ['neko', 'Neko', 'ねこ', 'A cuddly 3D kitten with soft whiskers and pink paw pads.', '#ffcf99', true],
   ['inu', 'Inu', 'いぬ', 'A round 3D puppy with floppy ears and a wagging tail.', '#f0d0a8', true],
   ['panda', 'Panda', 'パンダ', 'A cuddly cub with the fluffiest ears. Loves hugs more than bamboo.', '#d8d2e4', true],
@@ -137,7 +175,8 @@ $('species-row').replaceChildren(...SPECIES.map(([key, name, jp, text, color, ne
   const card = document.createElement('div');
   card.className = 'sp-card reveal';
   card.style.setProperty('--c', color);
-  card.innerHTML = `${new3d ? '<span class="new-badge">NEW · 3D</span>' : ''}<div class="sp-art">${make(key)}</div><h3>${name} <span>${jp}</span></h3><p>${text}</p>`;
+  const badge = new3d === true ? 'NEW · 3D' : new3d || '';
+  card.innerHTML = `${badge ? `<span class="new-badge">${badge}</span>` : ''}<div class="sp-art">${make(key)}</div><h3>${name} <span>${jp}</span></h3><p>${text}</p>`;
   return card;
 }));
 

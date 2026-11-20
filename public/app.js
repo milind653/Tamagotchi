@@ -34,11 +34,28 @@ const EMOTION_FALLBACK = {
   excited: { label: 'Excited', emoji: '🤩' }, proud: { label: 'Proud', emoji: '😌' }, love: { label: 'Loved', emoji: '💗' },
   happy: { label: 'Happy', emoji: '😊' }, okay: { label: 'Calm', emoji: '🙂' }, sleepy: { label: 'Drowsy', emoji: '😴' },
 };
+const TOUCH_COPY = {
+  shiba: {
+    love: { label: 'Nuzzling', emoji: '🐶' },
+    excited: { label: 'Boof!', emoji: '🤩' },
+    happy: { label: 'Wagging', emoji: '🐕' },
+    proud: { label: 'Good dog', emoji: '🌟' },
+    curious: { label: 'Head tilt', emoji: '🐶' },
+  },
+  mike: {
+    love: { label: 'Slow blink', emoji: '😺' },
+    happy: { label: 'Purring', emoji: '🐱' },
+    shy: { label: 'Tail flick', emoji: '😼' },
+    curious: { label: 'Sniffing', emoji: '🐱' },
+    excited: { label: 'Pounce', emoji: '✨' },
+  },
+};
 
 function displayPet(p) {
   if (!p) return p;
   if (state.flashMood && Date.now() < state.flashUntil) {
-    return { ...p, mood: state.flashMood, emotion: EMOTION_FALLBACK[state.flashMood] ?? p.emotion };
+    const special = TOUCH_COPY[p.species]?.[state.flashMood];
+    return { ...p, mood: state.flashMood, emotion: special ?? EMOTION_FALLBACK[state.flashMood] ?? p.emotion };
   }
   return p;
 }
@@ -210,7 +227,8 @@ async function renderAdopt(lastPet) {
       el('div', { class: 'slide-art', html: portraitOf(key) }),
       el('h2', {}, `${info.name} `, el('span', { class: 'jp' }, info.jp)),
       el('p', {}, info.trait));
-    if (info.model3d) slide.append(el('span', { class: 'tag3d' }, '3D'));
+    if (info.real) slide.append(el('span', { class: 'tag3d real' }, 'Real'));
+    else if (info.model3d) slide.append(el('span', { class: 'tag3d' }, '3D'));
     slide.addEventListener('click', () => pickSlide([...car.children].indexOf(slide), true));
     return slide;
   }));
@@ -376,7 +394,7 @@ function renderScene(p) {
   $('poops').innerHTML = Array.from({ length: p.poop }, () => `<span class="poop-slot">${poopSVG()}</span>`).join('');
   $('stage-hint').textContent = !p.alive || p.stage === 'egg' ? ''
     : p.sleeping ? 'Sleeping…'
-    : is3d(p.species) ? 'Drag to turn · Tap for emotion'
+    : is3d(p.species) ? (p.speciesInfo?.real ? 'Pet the head, body, or tail' : 'Drag to turn · Tap for emotion')
     : 'Tap to cuddle';
   setTheme(p.sleeping ? THEME.night : THEME.light);
 }
@@ -472,7 +490,7 @@ function burst(emoji) {
 const FX = { meal: '🍙', snack: '🍡', cuddle: '💗', clean: '✨', bath: '🫧', medicine: '➕', play: '⭐', light: '💤' };
 const REACT = { feed: 'eat', cuddle: 'love', play: 'play', clean: 'clean', bath: 'clean', medicine: 'heal' };
 
-async function act(action, body = {}, { quiet = false } = {}) {
+async function act(action, body = {}, { quiet = false, react: doReact = true } = {}) {
   if (state.busy || !state.pet) return;
   state.busy = true;
   $('dock').classList.add('busy');
@@ -480,7 +498,7 @@ async function act(action, body = {}, { quiet = false } = {}) {
     const res = await api(`/pet/${action}`, { method: 'POST', body });
     renderPet(res.pet);
     const lost = res.extra?.won === false;
-    if (stage3d && is3d(res.pet.species)) stage3d.react(lost ? 'sad' : REACT[action] ?? 'love');
+    if (doReact && stage3d && is3d(res.pet.species)) stage3d.react(lost ? 'sad' : REACT[action] ?? 'love');
     else burst(lost ? '💨' : FX[action === 'feed' ? body.kind : action] ?? '✨');
     buzz(action === 'cuddle' ? 8 : 16);
     if (!quiet) toast(res.message, lost ? 'warn' : 'good');
@@ -580,7 +598,8 @@ $('stage-card').addEventListener('pointerdown', (e) => {
   if (!p.alive) return;
   if (p.stage === 'egg') { buzz(10); burst('🍀'); return; }
   if (p.sleeping) { toast(`Shh, ${p.name} is sleeping.`); return; }
-  act('cuddle', {}, { quiet: true });
+  const onModel = !!e.target.closest?.('.pet3d-canvas');
+  act('cuddle', {}, { quiet: true, react: !onModel });
 });
 $('dead-adopt').onclick = () => renderAdopt(state.pet);
 
