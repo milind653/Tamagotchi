@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newPet, tick, actions, GameError, MINUTE, EGG_MS, PET_DAY_MS, stageForAge, formForMistakes } from '../src/engine.js';
+import { newPet, tick, toView, actions, GameError, MINUTE, EGG_MS, PET_DAY_MS, MAX_SIM_MS, stageForAge, formForMistakes } from '../src/engine.js';
 
 const T0 = 1_700_000_000_000;
 const fresh = () => newPet({ name: 'Momo', species: 'mochi', now: T0 });
@@ -56,6 +56,36 @@ test('neglect eventually kills the pet and records a cause', () => {
   assert.ok(events.some((e) => e.text.includes('passed away')));
   const again = tick(pet, pet.last_tick + 100 * MINUTE);
   assert.deepEqual(again.pet, pet);
+});
+
+test('pets abandoned longer than max simulation die and do not stay alive', () => {
+  const base = hatched();
+  const returnAt = base.last_tick + 7 * 24 * 60 * MINUTE; // owner never came back for a week
+  const { pet, events } = tick(base, returnAt);
+  assert.equal(pet.alive, 0);
+  assert.ok(pet.cause);
+  assert.ok(pet.died_at <= base.last_tick + MAX_SIM_MS, 'death is recorded inside the simulated window');
+  assert.ok(pet.died_at < returnAt);
+  assert.ok(events.some((e) => e.text.includes('passed away')));
+  const view = toView(pet, returnAt);
+  assert.equal(view.alive, false);
+  assert.ok(view.ageMs <= MAX_SIM_MS + EGG_MS, 'age must not keep growing while abandoned');
+});
+
+test('absence beyond max sim kills even a pampered pet left sleeping', () => {
+  const base = hatched();
+  base.hunger = 100;
+  base.happiness = 100;
+  base.hygiene = 100;
+  base.health = 100;
+  base.poop = 0;
+  base.digest = 0;
+  base.sleeping = 1;
+  base.energy = 0;
+  const { pet } = tick(base, base.last_tick + MAX_SIM_MS + MINUTE);
+  assert.equal(pet.alive, 0);
+  assert.ok(pet.cause);
+  assert.ok(pet.died_at <= base.last_tick + MAX_SIM_MS);
 });
 
 test('a well cared-for pet survives', () => {
