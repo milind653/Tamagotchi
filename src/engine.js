@@ -161,6 +161,15 @@ export function tick(input, now) {
       t += MINUTE;
       step(p, t, events);
     }
+    // Away longer than we simulate: if neglect within the window did not
+    // already kill them, they still die of abandonment (covers owners who
+    // never return, so pets do not stay "alive" forever in the DB).
+    if (capped && p.alive) {
+      p.alive = 0;
+      p.died_at = end;
+      p.cause = 'neglect';
+      events.push({ at: end, text: `${p.name} passed away (neglect). Sayonara...` });
+    }
     p.last_tick = capped || !p.alive ? now : t;
   }
 

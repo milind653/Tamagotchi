@@ -56,7 +56,16 @@ export async function getCurrentPet(userId, now = Date.now()) {
 export async function adoptPet(userId, { name, species }, now = Date.now()) {
   return withUserLock(userId, async () => {
     const row = await currentRow(userId);
-    if (row?.alive) throw new GameError('You already have a pet to look after.', 409);
+    if (row?.alive) {
+      // Resolve neglect before blocking adopt — an abandoned pet must not
+      // stay "alive" forever just because the owner never opened the app.
+      const { pet: ticked, events } = tick(row, now);
+      if (events.length || ticked.last_tick !== row.last_tick || ticked.alive !== row.alive || ticked.stage !== row.stage) {
+        await save(ticked);
+        await addEvents(ticked.id, events);
+      }
+      if (ticked.alive) throw new GameError('You already have a pet to look after.', 409);
+    }
     const pet = newPet({ name, species, now });
     const cols = PET_COLS.join(', ');
     const marks = PET_COLS.map(() => '?').join(', ');
@@ -108,7 +117,29 @@ export async function memorial(userId) {
   return rows.map((r) => toView(r, r.died_at));
 }
 
+// Advance overdue living pets so abandoned ones are marked dead before
+// public views (hall of fame) treat stale alive=1 rows as still living.
+async function resolveStaleLivingPets(now) {
+  const overdue = await query(
+    'SELECT id, user_id FROM pets WHERE alive = 1 AND last_tick < ?',
+    now,
+  );
+  for (const { id, user_id } of overdue) {
+    await withUserLock(user_id, async () => {
+      const rows = await query('SELECT * FROM pets WHERE id = ? AND alive = 1', id);
+      const row = rows[0];
+      if (!row) return;
+      const { pet, events } = tick(row, now);
+      if (events.length || pet.last_tick !== row.last_tick || pet.alive !== row.alive || pet.stage !== row.stage) {
+        await save(pet);
+        await addEvents(pet.id, events);
+      }
+    });
+  }
+}
+
 export async function leaderboard(now = Date.now(), limit = 10) {
+  await resolveStaleLivingPets(now);
   const rows = await query(
     `SELECT p.*, u.username FROM pets p JOIN users u ON u.id = p.user_id
      WHERE (CASE WHEN p.alive = 1 THEN ? ELSE p.died_at END) - p.born_at > ?
